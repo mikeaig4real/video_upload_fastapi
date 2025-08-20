@@ -73,7 +73,7 @@ uvicorn main:app --reload
 
 - `/api/auth/login` - User login
 - `/api/auth/register` - User registration
-- `/api/user/{id}` - Get, update, delete user
+- `/api/user/` - Get, update, delete user
 - `/api/video/` - Create, list videos
 - `/api/video/{id}` - Get, update, delete video
 
