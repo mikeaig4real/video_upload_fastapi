@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: video-upload-fastapi
+    runtime: python
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "uvicorn main:app --host 0.0.0.0 --port $PORT"
+    autoDeploy: true
+    envVars:
+      - key: SECRET_KEY
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DB_SERVER
+        sync: false
+      - key: DB_PORT
+        sync: false
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_TYPE
+        sync: false
+      - key: MONGO_ATLAS_URI
+        sync: false
+      - key: API_PREFIX
+        sync: false
+      - key: FRONTEND_HOST
+        sync: false
+      - key: BACKEND_CORS_ORIGINS
+        sync: false
+      - key: ENVIRONMENT
+        sync: false
+      - key: PROJECT_NAME
+        sync: false

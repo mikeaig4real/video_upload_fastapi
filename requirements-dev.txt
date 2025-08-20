@@ -1,0 +1,15 @@
+pytest
+mypy
+ruff
+pre-commit
+types-passlib
+coverage
+httpx
+pytest-asyncio
+pytest-cov
+types-ujson
+types-python-dateutil
+types-requests
+black
+isort
+sqlalchemy-utils
