@@ -1,7 +1,7 @@
 from enum import Enum
 from functools import lru_cache
 import secrets
-from typing import Annotated, Any, Dict
+from typing import Annotated, Any, Dict, TypedDict
 from pydantic import AnyUrl, BeforeValidator, MongoDsn, PostgresDsn, computed_field
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -29,6 +29,49 @@ class ENVIRONMENT_TYPE_ENUM(Enum):
 OPTIONAL_STR_TYPE = str | None
 
 DB_URI_TYPES = str | PostgresDsn | MongoDsn | MultiHostUrl
+
+
+class CLOUDINARY_CONFIG_TYPE(TypedDict):
+    cloud_name: OPTIONAL_STR_TYPE
+    api_key: OPTIONAL_STR_TYPE
+    api_secret: OPTIONAL_STR_TYPE
+    url: OPTIONAL_STR_TYPE
+
+class S3_CONFIG_TYPE(TypedDict):
+    bucket: OPTIONAL_STR_TYPE
+    access_key: OPTIONAL_STR_TYPE
+    secret_key: OPTIONAL_STR_TYPE
+    region: OPTIONAL_STR_TYPE
+
+class UPLOAD_BUCKET_ENUM(Enum):
+    CLOUDINARY = "cloudinary"
+    S3 = "s3"
+    GOOGLE_CLOUD_STORAGE = "google_cloud_storage"
+
+    @property
+    def is_cloudinary(self) -> bool:
+        return self == UPLOAD_BUCKET_ENUM.CLOUDINARY
+
+    @property
+    def is_s3(self) -> bool:
+        return self == UPLOAD_BUCKET_ENUM.S3
+
+    @property
+    def is_google_cloud_storage(self) -> bool:
+        return self == UPLOAD_BUCKET_ENUM.GOOGLE_CLOUD_STORAGE
+
+
+class UPLOAD_STORAGE_ENUM(Enum):
+    BUCKET = "bucket"
+    FILE_SYSTEM = "file_system"
+
+    @property
+    def is_bucket(self) -> bool:
+        return self == UPLOAD_STORAGE_ENUM.BUCKET
+
+    @property
+    def is_file_system(self) -> bool:
+        return self == UPLOAD_STORAGE_ENUM.FILE_SYSTEM
 
 
 class DB_TYPE_ENUM(Enum):
@@ -79,12 +122,63 @@ class Config(BaseSettings):
     MONGO_ATLAS_URI: OPTIONAL_STR_TYPE = None
     USE_MIGRATIONS: bool = False
 
+    UPLOAD_BUCKET: UPLOAD_BUCKET_ENUM = UPLOAD_BUCKET_ENUM.CLOUDINARY
+    UPLOAD_STORAGE_TYPE: UPLOAD_STORAGE_ENUM = UPLOAD_STORAGE_ENUM.BUCKET
+
     CLOUDINARY_URL: OPTIONAL_STR_TYPE = None
     CLOUDINARY_CLOUD_NAME: OPTIONAL_STR_TYPE = None
     CLOUDINARY_API_KEY: OPTIONAL_STR_TYPE = None
     CLOUDINARY_API_SECRET: OPTIONAL_STR_TYPE = None
-    UPLOAD_STORAGE_TYPE: OPTIONAL_STR_TYPE = None
-    UPLOAD_BUCKET: OPTIONAL_STR_TYPE = None
+
+    @computed_field
+    @property
+    def CLOUDINARY_CONFIG(self) -> CLOUDINARY_CONFIG_TYPE:
+        if not self.UPLOAD_STORAGE_TYPE.is_bucket:
+            raise ValueError("Invalid upload storage type for Cloudinary configuration")
+
+        if not self.UPLOAD_BUCKET.is_cloudinary:
+            raise ValueError("Invalid upload bucket for Cloudinary configuration")
+
+        if not all(
+            [
+                self.CLOUDINARY_URL,
+                self.CLOUDINARY_CLOUD_NAME,
+                self.CLOUDINARY_API_KEY,
+                self.CLOUDINARY_API_SECRET,
+            ]
+        ):
+            raise ValueError("Missing Cloudinary configuration")
+
+        return {
+            "url": self.CLOUDINARY_URL,
+            "cloud_name": self.CLOUDINARY_CLOUD_NAME,
+            "api_key": self.CLOUDINARY_API_KEY,
+            "api_secret": self.CLOUDINARY_API_SECRET,
+        }
+
+    S3_BUCKET_NAME: OPTIONAL_STR_TYPE = None
+    AWS_ACCESS_KEY_ID: OPTIONAL_STR_TYPE = None
+    AWS_SECRET_ACCESS_KEY: OPTIONAL_STR_TYPE = None
+    AWS_REGION: OPTIONAL_STR_TYPE = None
+
+    @computed_field
+    @property
+    def S3_CONFIG(self) -> S3_CONFIG_TYPE:
+        if not self.UPLOAD_STORAGE_TYPE.is_bucket:
+            raise ValueError("Invalid storage type for S3 configuration")
+
+        if not self.UPLOAD_BUCKET.is_s3:
+            raise ValueError("Invalid bucket type for S3 configuration")
+
+        if not all([self.S3_BUCKET_NAME, self.AWS_ACCESS_KEY_ID, self.AWS_SECRET_ACCESS_KEY]):
+            raise ValueError("Missing S3 configuration")
+
+        return {
+            "bucket": self.S3_BUCKET_NAME,
+            "access_key": self.AWS_ACCESS_KEY_ID,
+            "secret_key": self.AWS_SECRET_ACCESS_KEY,
+            "region": self.AWS_REGION,
+        }
 
     @computed_field
     @property

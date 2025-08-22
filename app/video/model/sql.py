@@ -2,6 +2,7 @@ from sqlmodel import Field, SQLModel, Relationship
 from typing import Optional
 from datetime import datetime, timezone
 from app.constants import URL_REGEX
+from app.core.config import UPLOAD_BUCKET_ENUM
 from app.models.http_url import HttpType
 from app.user.model.sql import User
 
@@ -22,6 +23,9 @@ class Video(VideoBase, table=True):
     )
     user_id: int = Field(default=None, foreign_key="user.id")
     user: User = Relationship(back_populates="videos")
+    upload_hash: str = Field(unique=True)
+    upload_provider: UPLOAD_BUCKET_ENUM = Field(default=UPLOAD_BUCKET_ENUM.CLOUDINARY)
+    asset_id: str = Field(unique=True)
 
 
 class VideoCreate(VideoBase):

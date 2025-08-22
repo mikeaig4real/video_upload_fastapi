@@ -7,6 +7,7 @@ from app.exceptions import Error, NotFound, ServerError, Unauthorized
 from app.user.router import router as user_router
 from app.auth.router import router as auth_router
 from app.video.router import router as video_router
+from app.upload.router import router as upload_router
 
 
 config = get_config()
@@ -52,6 +53,7 @@ async def http_exception_handler(_, exc: HTTPException):
 app.include_router(user_router, prefix=config.API_PREFIX)
 app.include_router(auth_router, prefix=config.API_PREFIX)
 app.include_router(video_router, prefix=config.API_PREFIX)
+app.include_router(upload_router, prefix=config.API_PREFIX)
 
 if len(config.ALL_CORS_ORIGINS):
     app.add_middleware(
