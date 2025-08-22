@@ -18,7 +18,7 @@ class Video(Model):
     upload_url: HttpCheck = Field(unique=True)
     user: User = Reference()
     user_id: ObjectId
-    title: str
+    title: str = Field(unique=True)
     description: Optional[str] = None
     is_public: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
@@ -30,7 +30,7 @@ class Video(Model):
 
 class VideoCreate(Model):
     upload_url: HttpType
-    title: str
+    title: str = Field(unique=True)
     description: Optional[str] = None
     is_public: bool = True
 

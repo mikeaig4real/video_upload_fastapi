@@ -8,7 +8,7 @@ from app.user.model.sql import User
 
 
 class VideoBase(SQLModel):
-    title: str
+    title: str = Field(unique=True)
     description: Optional[str] = None
     is_public: bool = True
 
