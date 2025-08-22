@@ -17,14 +17,18 @@ class Video(Model):
     upload_url: HttpCheck = Field(unique=True)
     user: User = Reference()
     user_id: ObjectId
+    title: str
+    description: Optional[str] = None
+    is_public: bool = True
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 
 class VideoCreate(Model):
     upload_url: HttpType
-    user_id: ObjectId
-
+    title: str
+    description: Optional[str] = None
+    is_public: bool = True
 
 class VideoPublic(Model):
     upload_url: HttpCheck

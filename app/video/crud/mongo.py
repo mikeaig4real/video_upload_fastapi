@@ -15,9 +15,11 @@ from app.video.model.mongo import (
 
 class VideoCrud(MONGOCrud[Video, VideoCreate, VideoUpdate]):
 
-    async def create(self, data: VideoCreate, session: AgnosticDatabase[Any]) -> Video:
+    async def create(
+        self, data: VideoCreate, session: AgnosticDatabase[Any], user_id: ObjectId
+    ) -> Video:
         entity_data = jsonable_encoder(data)
-        user_id = ObjectId(entity_data.get("user_id"))
+        user_id = ObjectId(user_id)
         user = await user_crud.get(id=user_id, session=session)
         if not user:
             raise ValueError("User not found")

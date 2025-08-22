@@ -5,7 +5,7 @@ from app.models.filter import FilterType
 from app.models.id import IDType
 from app.models.success import SuccessModel
 from app.responses import SuccessResponse
-from app.video.crud import video_crud, VideoUpdate, VideoPublic, VideoCreate
+from app.video.crud import video_crud, VideoUpdate, VideoPublic, VideoCreate, VideoBase, Video # pyright: ignore[reportUnusedImport]
 from app.db.deps import RequireSession
 
 router = APIRouter(prefix="/video")
@@ -15,7 +15,7 @@ router = APIRouter(prefix="/video")
 async def create(
     video: VideoCreate, session: RequireSession, current_user: RequireCurrentUser
 ):
-    video = await video_crud.create(data=video, session=session)  # type: ignore
+    video = await video_crud.create(data=video, user_id=current_user.id, session=session)  # type: ignore
     return SuccessResponse(video)
 
 

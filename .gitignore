@@ -52,3 +52,9 @@ dist/
 # Misc
 *.bak
 *.tmp
+
+# typings
+**/typings/
+
+# uploads
+uploads/

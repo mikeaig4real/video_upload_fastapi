@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy import asc, desc
-from typing import List, Literal, TypeVar
+from typing import Any, List, Literal, TypeVar
 from app.crud.base import BaseCrud, BId, BOptions
 
 
@@ -14,17 +14,19 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
     def __init__(self, model: type[SModel]):
         self.model = model
 
-    async def create(self, data: SCreate, session: Session) -> SModel:
+    async def create(
+        self, data: SCreate, session: Session, *args: Any, **kwargs: Any
+    ) -> SModel:
         entity = self.model.model_validate(data)
         session.add(entity)
         session.commit()
         session.refresh(entity)
         return entity
 
-    async def get(self, id: BId, session: Session):
+    async def get(self, id: BId, session: Session) -> SModel | None:
         return session.get(self.model, id)
 
-    async def list(self, options: BOptions, session: Session) -> List[SModel]:
+    async def list(self, options: BOptions, session: Session, *args: Any, **kwargs: Any) -> List[SModel]:
         page = options.get("page", 1)
         limit = options.get("limit", 100)
         order_by = options.get("order_by", "id")
@@ -39,7 +41,7 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
             ).all()
         )
 
-    async def update(self, id: BId, data: SUpdate, session: Session) -> SModel | None:
+    async def update(self, id: BId, data: SUpdate, session: Session, *args: Any, **kwargs: Any) -> SModel | None:
         entity = session.get(self.model, id)
         if not entity:
             return None
@@ -50,7 +52,7 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         session.refresh(entity)
         return entity
 
-    async def delete(self, id: BId, session: Session) -> SModel | None:
+    async def delete(self, id: BId, session: Session, *args: Any, **kwargs: Any) -> SModel | None:
         entity = await self.get(id, session=session)
         if not entity:
             return None

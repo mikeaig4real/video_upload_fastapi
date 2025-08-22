@@ -26,7 +26,6 @@ class Video(VideoBase, table=True):
 
 class VideoCreate(VideoBase):
     upload_url: HttpType
-    user_id: int
 
 
 class VideoPublic(VideoBase):

@@ -31,3 +31,4 @@ pymongo
 sniffio
 starlette
 typing-extensions
+cloudinary

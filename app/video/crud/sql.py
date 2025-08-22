@@ -1,6 +1,7 @@
+from sqlmodel import Session
 from app.crud.sql import SQLCrud
 from app.video.model.sql import (
-    VideoBase,
+    VideoBase,  # pyright: ignore[reportUnusedImport]
     Video,
     VideoCreate,
     VideoUpdate,
@@ -8,8 +9,17 @@ from app.video.model.sql import (
 )
 
 
-class VideoCrud(SQLCrud[VideoBase, VideoCreate, VideoUpdate]):
-    pass
+class VideoCrud(SQLCrud[Video, VideoCreate, VideoUpdate]):
+
+    async def create(
+        self, data: VideoCreate, session: Session, user_id: int
+    ) -> Video:
+        entity = self.model.model_validate(data)
+        entity.user_id = user_id
+        session.add(entity)
+        session.commit()
+        session.refresh(entity)
+        return entity
 
 
 crud = VideoCrud(Video)

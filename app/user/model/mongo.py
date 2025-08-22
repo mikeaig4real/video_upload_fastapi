@@ -33,5 +33,4 @@ class UserPublic(Model):
 
 
 class UserUpdate(Model):
-    email: Optional[EmailStr] = None
     username: Optional[str] = None

@@ -37,5 +37,4 @@ class UserPublic(UserBase):
 
 
 class UserUpdate(SQLModel):
-    email: Optional[EmailStr] = None
     username: Optional[str] = None

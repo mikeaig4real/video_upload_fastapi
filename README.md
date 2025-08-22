@@ -1,6 +1,6 @@
 # Video Upload FastAPI
 
-A robust, production-ready FastAPI backend for user authentication, video upload, and management. Supports both SQL and MongoDB backends, JWT authentication, and secure password hashing.
+A robust, production-ready FastAPI backend for user authentication, video upload, and management. Supports both SQL and MongoDB backends, JWT authentication, and secure password hashing. **WORK IN PROGRESS, UPDATES PENDING**
 
 ## Features
 
