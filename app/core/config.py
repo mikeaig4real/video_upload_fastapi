@@ -6,6 +6,7 @@ from pydantic import AnyUrl, BeforeValidator, MongoDsn, PostgresDsn, computed_fi
 from pydantic_core import MultiHostUrl
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from app.core.utils import parse_cors
+from app.utils import convertSize
 
 
 class ENVIRONMENT_TYPE_ENUM(Enum):
@@ -121,6 +122,13 @@ class Config(BaseSettings):
     API_PREFIX: str = "/api"
     MONGO_ATLAS_URI: OPTIONAL_STR_TYPE = None
     USE_MIGRATIONS: bool = False
+    
+    MAX_VIDEO_SIZE_MB: int = 10  # Maximum video size in megabytes
+    
+    @computed_field
+    @property
+    def MAX_VIDEO_SIZE(self) -> float:
+        return convertSize(self.MAX_VIDEO_SIZE_MB, "MB", "B")
 
     UPLOAD_BUCKET: UPLOAD_BUCKET_ENUM = UPLOAD_BUCKET_ENUM.CLOUDINARY
     UPLOAD_STORAGE_TYPE: UPLOAD_STORAGE_ENUM = UPLOAD_STORAGE_ENUM.BUCKET
