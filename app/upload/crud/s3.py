@@ -5,7 +5,7 @@ config = get_config()
 
 class S3Uploader(BaseUploader):
     def __init__(self):
-        self.bucket = config.UPLOAD_BUCKET.name
+        self.bucket = config.S3_CONFIG["bucket"]
         self.s3 = client("s3") # type: ignore
 
     def generate_params(

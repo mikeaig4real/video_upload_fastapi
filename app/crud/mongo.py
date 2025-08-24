@@ -2,12 +2,13 @@ from typing import Any, Dict, List, Literal, Tuple, TypeVar
 from fastapi.encoders import jsonable_encoder
 from odmantic import AIOEngine, Model
 from motor.core import AgnosticDatabase
+from pydantic import BaseModel
 from app.db.connect.mongo import get_engine
 from app.crud.base import BaseCrud, BId, BOptions
 
 OModel = TypeVar("OModel", bound=Model)
-OCreate = TypeVar("OCreate", bound=Model)
-OUpdate = TypeVar("OUpdate", bound=Model)
+OCreate = TypeVar("OCreate", bound=BaseModel)
+OUpdate = TypeVar("OUpdate", bound=BaseModel)
 
 OffsetType = Dict[str, str | int | Tuple[str, str | int] | Dict[str, int | str]]
 

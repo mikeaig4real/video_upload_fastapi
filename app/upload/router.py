@@ -34,5 +34,4 @@ async def upload_local(id: IDType, session: RequireSession, current_user: Requir
 async def upload_bucket(
     options: FilterType, session: RequireSession, current_user: RequireCurrentUser
 ):
-    videos = await video_crud.list(options=options.model_dump(), session=session)  # type: ignore
     return SuccessResponse({})

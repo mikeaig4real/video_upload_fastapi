@@ -38,11 +38,13 @@ class CLOUDINARY_CONFIG_TYPE(TypedDict):
     api_secret: OPTIONAL_STR_TYPE
     url: OPTIONAL_STR_TYPE
 
+
 class S3_CONFIG_TYPE(TypedDict):
     bucket: OPTIONAL_STR_TYPE
     access_key: OPTIONAL_STR_TYPE
     secret_key: OPTIONAL_STR_TYPE
     region: OPTIONAL_STR_TYPE
+
 
 class UPLOAD_BUCKET_ENUM(Enum):
     CLOUDINARY = "cloudinary"
@@ -122,9 +124,9 @@ class Config(BaseSettings):
     API_PREFIX: str = "/api"
     MONGO_ATLAS_URI: OPTIONAL_STR_TYPE = None
     USE_MIGRATIONS: bool = False
-    
+
     MAX_VIDEO_SIZE_MB: int = 10  # Maximum video size in megabytes
-    
+
     @computed_field
     @property
     def MAX_VIDEO_SIZE(self) -> float:
@@ -138,7 +140,6 @@ class Config(BaseSettings):
     CLOUDINARY_API_KEY: OPTIONAL_STR_TYPE = None
     CLOUDINARY_API_SECRET: OPTIONAL_STR_TYPE = None
 
-    @computed_field
     @property
     def CLOUDINARY_CONFIG(self) -> CLOUDINARY_CONFIG_TYPE:
         if not self.UPLOAD_STORAGE_TYPE.is_bucket:
@@ -169,7 +170,6 @@ class Config(BaseSettings):
     AWS_SECRET_ACCESS_KEY: OPTIONAL_STR_TYPE = None
     AWS_REGION: OPTIONAL_STR_TYPE = None
 
-    @computed_field
     @property
     def S3_CONFIG(self) -> S3_CONFIG_TYPE:
         if not self.UPLOAD_STORAGE_TYPE.is_bucket:
@@ -178,7 +178,14 @@ class Config(BaseSettings):
         if not self.UPLOAD_BUCKET.is_s3:
             raise ValueError("Invalid bucket type for S3 configuration")
 
-        if not all([self.S3_BUCKET_NAME, self.AWS_ACCESS_KEY_ID, self.AWS_SECRET_ACCESS_KEY]):
+        if not all(
+            [
+                self.S3_BUCKET_NAME,
+                self.AWS_ACCESS_KEY_ID,
+                self.AWS_SECRET_ACCESS_KEY,
+                self.AWS_REGION,
+            ]
+        ):
             raise ValueError("Missing S3 configuration")
 
         return {

@@ -13,7 +13,7 @@ config = get_config()
 class UploadParams(BaseModel):
     folder: str | None = "videos"
     title: str
-    file: str = Field(pattern=VIDEO_FORMAT_REGEX)
+    type: str = Field(pattern=VIDEO_FORMAT_REGEX)
     size: float | int = Field(gt=0, le=config.MAX_VIDEO_SIZE)
 
 UploadType = Annotated[UploadParams, Query()]
