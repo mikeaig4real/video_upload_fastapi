@@ -15,6 +15,7 @@ class UploadParams(BaseModel):
     title: str
     type: str = Field(pattern=VIDEO_FORMAT_REGEX)
     size: float | int = Field(gt=0, le=config.MAX_VIDEO_SIZE)
+    upload_hash: str
 
 UploadType = Annotated[UploadParams, Query()]
 

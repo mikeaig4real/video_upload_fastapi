@@ -7,19 +7,24 @@ from app.upload.crud.base import BaseUploader, UploadParams
 
 config = get_config()
 
-OptionsType = TypedDict("OptionsType", {
-    "public_id": str,
-    "overwrite": bool,
-    "timestamp": int,
-    "eager": str,
-})
+OptionsType = TypedDict(
+    "OptionsType",
+    {
+        "public_id": str,
+        "overwrite": bool,
+        "timestamp": int,
+        "eager": str,
+    },
+)
+
 
 class CloudinaryUploader(BaseUploader):
     _has_init: bool = False
     _lock = threading.Lock()
+
     def __new__(cls):
         if not cls._has_init:
-            with cls._lock: 
+            with cls._lock:
                 if not cls._has_init:
                     cloudinary.config(  # type: ignore
                         cloud_name=config.CLOUDINARY_CONFIG["cloud_name"],
@@ -36,10 +41,11 @@ class CloudinaryUploader(BaseUploader):
             "public_id": asset_id,
             "overwrite": True,
             "timestamp": int(time.time()),
-            "eager": "c_fill,h_300,w_400/jpg"
+            "eager": "c_fill,h_300,w_400/jpg",
+            # "eager_async": False, uncomment to make upload fail
         }
 
-        signature_data = cloudinary.utils.api_sign_request(options, api_secret=config.CLOUDINARY_CONFIG['api_secret'])  # type: ignore
+        signature_data = cloudinary.utils.api_sign_request(options, api_secret=config.CLOUDINARY_CONFIG["api_secret"])  # type: ignore
 
         return {
             "upload_url": f"https://api.cloudinary.com/v1_1/{config.CLOUDINARY_CONFIG['cloud_name']}/{resource_type}/upload",

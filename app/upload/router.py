@@ -19,6 +19,8 @@ router = APIRouter(prefix="/upload")
 async def get_params(
     upload: UploadType, _: RequireSession, current_user: RequireCurrentUser
 ):
+    # todo: check upload_hash for possible duplicate upload
+    # video = video_crud.find_by_hash(hash=upload.upload_hash)
     asset_id = f"{upload.folder}/{current_user.id}/{upload.title}"
     params = uploader_crud.generate_params(asset_id=asset_id, resource_type="video")
     return SuccessResponse(params)
