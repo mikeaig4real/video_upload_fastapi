@@ -40,7 +40,7 @@ class Video(Model):
     thumbnail_url: Optional[str] = None
     playback_url: HttpCheck
     type: Optional[str] = None
-    upload_status: str = Field(default="idle")
+    upload_status: UPLOAD_STATUS_ENUM
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     upload_url: HttpCheck = Field()
