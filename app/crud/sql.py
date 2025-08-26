@@ -26,7 +26,9 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
     async def get(self, id: BId, session: Session) -> SModel | None:
         return session.get(self.model, id)
 
-    async def list(self, options: BOptions, session: Session, *args: Any, **kwargs: Any) -> List[SModel]:
+    async def list(
+        self, options: BOptions, session: Session, *args: Any, **kwargs: Any
+    ) -> List[SModel]:
         page = options.get("page", 1)
         limit = options.get("limit", 100)
         order_by = options.get("order_by", "id")
@@ -41,8 +43,10 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
             ).all()
         )
 
-    async def update(self, id: BId, data: SUpdate, session: Session, *args: Any, **kwargs: Any) -> SModel | None:
-        entity = session.get(self.model, id)
+    async def update(
+        self, id: BId, data: SUpdate, session: Session, *args: Any, **kwargs: Any
+    ) -> SModel | None:
+        entity = await self.get(id, session=session)
         if not entity:
             return None
         model_data = data.model_dump(exclude_unset=True)
@@ -52,7 +56,33 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         session.refresh(entity)
         return entity
 
-    async def delete(self, id: BId, session: Session, *args: Any, **kwargs: Any) -> SModel | None:
+    async def upsert(
+        self,
+        id: BId,
+        data: SCreate,
+        session: Session,
+        update: bool = False,
+        *args: Any,
+        **kwargs: Any,
+    ) -> SModel | None:
+        entity = await self.get(id, session=session)
+
+        if not entity:
+            return await self.create(data=data, session=session)
+
+        if not update:
+            return entity
+
+        model_data = data.model_dump(exclude_unset=True)
+        entity.sqlmodel_update(model_data)
+        session.add(entity)
+        session.commit()
+        session.refresh(entity)
+        return entity
+
+    async def delete(
+        self, id: BId, session: Session, *args: Any, **kwargs: Any
+    ) -> SModel | None:
         entity = await self.get(id, session=session)
         if not entity:
             return None

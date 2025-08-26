@@ -30,6 +30,11 @@ class BaseCrud(ABC, Generic[BModel, BCreate, BUpdate]):
     async def update(
         self, id: BId, data: BUpdate, *args: Any, **kwargs: Any
     ) -> BModel | None: ...
+    
+    @abstractmethod
+    async def upsert(
+        self, id: BId, data: BCreate, *args: Any, **kwargs: Any
+    ) -> BModel | None: ...
 
     @abstractmethod
     async def delete(self, id: BId, *args: Any, **kwargs: Any) -> BModel | None: ...

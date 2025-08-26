@@ -65,6 +65,29 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         # TODO: Check if this saves changes with the setattr calls
         await self.engine.save(entity_db)  # type: ignore
         return entity_db
+    
+    async def upsert(
+        self, id: BId, data: OCreate, session: AgnosticDatabase[Any], update: bool = False, *args: Any, **kwargs: Any
+    ) -> OModel | None:
+        entity_db = await self.get(id=id, session=session)
+        
+        if not entity_db:
+            return await self.create(data=data, session=session)
+        
+        if not update:
+            return entity_db
+        
+        entity_data = jsonable_encoder(data)
+        if isinstance(data, dict):
+            update_data = data
+        else:
+            update_data = data.model_dump(exclude_unset=True)
+        for field in entity_data:
+            if field in update_data:
+                setattr(entity_db, field, update_data[field])
+        # TODO: Check if this saves changes with the setattr calls
+        await self.engine.save(entity_db)  # type: ignore
+        return entity_db
 
     async def delete(self, id: BId, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any) -> OModel | None:
         entity_db = await self.get(id=id, session=session)
