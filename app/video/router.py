@@ -1,7 +1,9 @@
-from typing import List
+from typing import Any, List, cast
 from fastapi import APIRouter
 from app.auth.deps import RequireCurrentUser
-from app.models.filter import FilterType
+from app.auth.utils import make_exception
+from app.crud.base import BOptions
+from app.models.filter import FilterOptionsType
 from app.models.id import IDType
 from app.models.success import SuccessModel
 from app.responses import SuccessResponse
@@ -11,26 +13,41 @@ from app.db.deps import RequireSession
 router = APIRouter(prefix="/video")
 
 
-@router.post("/", response_model=SuccessModel[VideoPublic])
+@router.put("/", response_model=SuccessModel[VideoPublic])
 async def create(
     video: VideoCreate, session: RequireSession, current_user: RequireCurrentUser
 ):
-    video = await video_crud.create(data=video, user_id=current_user.id, session=session)  # type: ignore
+    video = await video_crud.upsert(id=None, data=video, user_id=current_user.id, session=session)  # type: ignore
     return SuccessResponse(video)
 
 
 @router.get("/{id}", response_model=SuccessModel[VideoPublic])
-async def get(id: IDType, session: RequireSession, current_user: RequireCurrentUser):
+async def get(id: IDType, session: RequireSession, _: RequireCurrentUser):
     video = await video_crud.get(id=id, session=session)  # type: ignore
-    return video
+    if not video:
+        raise make_exception(code=404, detail="Video not found")
+    return SuccessResponse(video)
 
 
 @router.get("/", response_model=SuccessModel[List[VideoPublic]])
 async def list(
-    options: FilterType, session: RequireSession, current_user: RequireCurrentUser
+    filters: FilterOptionsType,
+    session: RequireSession,
+    current_user: RequireCurrentUser,
 ):
-    videos = await video_crud.list(options=options.model_dump(), session=session)  # type: ignore
-    return videos
+
+    options = cast(BOptions, filters.pagination_dict())
+    filters_with_user: dict[str, Any] = {
+        "user_id": current_user.id,
+        **filters.video_filters_dict(),
+    }
+
+    videos = await video_crud.list(
+        options=options,
+        filters=filters_with_user,
+        session=session,  # pyright: ignore[reportArgumentType]
+    )
+    return SuccessResponse(videos)
 
 
 @router.patch("/{id}", response_model=SuccessModel[VideoPublic])
@@ -38,13 +55,17 @@ async def update(
     id: IDType,
     update: VideoUpdate,
     session: RequireSession,
-    current_user: RequireCurrentUser,
+    _: RequireCurrentUser,
 ):
     video = await video_crud.update(id=id, data=update, session=session)  # type: ignore
-    return video
+    if not video:
+        raise make_exception(code=404, detail="Video not found")
+    return SuccessResponse(video)
 
 
 @router.delete("/{id}", response_model=SuccessModel[VideoPublic])
-async def delete(id: IDType, session: RequireSession, current_user: RequireCurrentUser):
+async def delete(id: IDType, session: RequireSession, _: RequireCurrentUser):
     video = await video_crud.delete(id=id, session=session)  # type: ignore
-    return video
+    if not video:
+        raise make_exception(code=404, detail="Video not found")
+    return SuccessResponse(video)

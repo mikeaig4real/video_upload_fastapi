@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy import asc, desc
-from typing import Any, List, Literal, TypeVar
+from typing import Any, List, TypeVar
 from app.crud.base import BaseCrud, BId, BOptions
 
 
@@ -9,6 +9,7 @@ SCreate = TypeVar("SCreate", bound=SQLModel)
 SUpdate = TypeVar("SUpdate", bound=SQLModel)
 
 
+# todo: repetitions happening, will refactor later
 class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
 
     def __init__(self, model: type[SModel]):
@@ -24,22 +25,42 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         return entity
 
     async def get(self, id: BId, session: Session) -> SModel | None:
+        if id is None:
+            return None
         return session.get(self.model, id)
 
     async def list(
-        self, options: BOptions, session: Session, *args: Any, **kwargs: Any
+        self,
+        options: BOptions,
+        session: Session,
+        filters: dict[str, Any] = {},
+        *args: Any,
+        **kwargs: Any,
     ) -> List[SModel]:
-        page = options.get("page", 1)
-        limit = options.get("limit", 100)
-        order_by = options.get("order_by", "id")
+        page = options.get("page")
+        if page is None:
+            page = 1
+        limit = options.get("limit")
+        if limit is None:
+            limit = 100
+        order_by = options.get("order_by")
+        if order_by is None:
+            order_by = "id"
         offset = (page - 1) * limit
-        order: Literal["asc", "desc"] = options.get("order", "asc")
+        order = options.get("order")
+        if order is None:
+            order = "asc"
         column = getattr(self.model, order_by)
         # direction: int = -1 if order == "desc" else 1
         order_clause = desc(column) if order == "desc" else asc(column)
+        query = select(self.model)
+        for field, value in filters.items():
+            model_field = getattr(self.model, field, None)
+            if model_field is not None and value is not None:
+                query = query.where(model_field == value)
         return list(
             session.exec(
-                select(self.model).order_by(order_clause).offset(offset).limit(limit)
+                query.order_by(order_clause).offset(offset).limit(limit)
             ).all()
         )
 
@@ -61,17 +82,13 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         id: BId,
         data: SCreate,
         session: Session,
-        update: bool = False,
         *args: Any,
         **kwargs: Any,
-    ) -> SModel | None:
+    ) -> SModel:
         entity = await self.get(id, session=session)
 
         if not entity:
             return await self.create(data=data, session=session)
-
-        if not update:
-            return entity
 
         model_data = data.model_dump(exclude_unset=True)
         entity.sqlmodel_update(model_data)

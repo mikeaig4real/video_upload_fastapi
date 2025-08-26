@@ -1,6 +1,7 @@
 from typing import Any
 from fastapi.encoders import jsonable_encoder
 from odmantic import ObjectId
+from app.crud.base import BId
 from app.crud.mongo import MONGOCrud
 from motor.core import AgnosticDatabase
 from app.user.crud.mongo import User, crud as user_crud
@@ -27,6 +28,13 @@ class VideoCrud(MONGOCrud[Video, VideoCreate, VideoUpdate]):
         entity_data["user_id"] = user_id
         entity = self.model(**entity_data)
         return await self.engine.save(entity)  # type: ignore
+    
+    async def upsert(
+        self, id: BId, data: VideoCreate, session: AgnosticDatabase[Any], user_id: ObjectId
+    ) -> Video:
+        if id is None:
+            return await self.create(data=data, session=session, user_id=user_id)
+        return await super().upsert(id=id, data=data, session=session)
 
 
 crud = VideoCrud(Video)

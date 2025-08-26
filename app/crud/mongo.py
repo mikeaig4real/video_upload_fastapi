@@ -1,4 +1,4 @@
-from typing import Any, Dict, List, Literal, Tuple, TypeVar
+from typing import Any, Dict, List, Tuple, TypeVar
 from fastapi.encoders import jsonable_encoder
 from odmantic import AIOEngine, Model
 from motor.core import AgnosticDatabase
@@ -12,7 +12,7 @@ OUpdate = TypeVar("OUpdate", bound=BaseModel)
 
 OffsetType = Dict[str, str | int | Tuple[str, str | int] | Dict[str, int | str]]
 
-
+# todo: repetitions happening, will refactor later
 class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
 
     def __init__(self, model: type[Model]):
@@ -25,17 +25,32 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         return await self.engine.save(entity)  # type: ignore
 
     async def get(self, id: BId, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any) -> OModel | None:
+        if id is None:
+            return None
         return await self.engine.find_one(self.model, self.model.id == id)  # type: ignore
 
     async def list(
-        self, options: BOptions, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any
+        self,
+        options: BOptions,
+        session: AgnosticDatabase[Any],
+        filters: dict[str, Any] = {},
+        *args: Any,
+        **kwargs: Any,
     ) -> List[OModel]:
-        limit = options.get("limit", 100)
-        page = options.get("page", 1)
+        limit = options.get("limit")
+        if limit is None:
+            limit = 100
+        page = options.get("page")
+        if page is None:
+            page = 1
         skip = (page - 1) * limit
-        order_by = options.get("order_by", "id")
+        order_by = options.get("order_by")
+        if order_by is None:
+            order_by = "id"
         column = getattr(self.model, order_by)
-        order: Literal["asc", "desc"] = options.get("order", "asc")
+        order = options.get("order")
+        if order is None:
+            order = "asc"
         # direction: int = -1 if order == "desc" else 1
         if order == "desc":
             sort = column.desc()
@@ -46,7 +61,7 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
             "limit": limit,
             "sort": sort,
         }
-        return list(await self.engine.find(self.model, **offset))  # type: ignore
+        return list(await self.engine.find(self.model, filters, **offset))  # type: ignore
 
     async def update(
         self, id: BId, data: OUpdate, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any
@@ -65,18 +80,15 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         # TODO: Check if this saves changes with the setattr calls
         await self.engine.save(entity_db)  # type: ignore
         return entity_db
-    
+
     async def upsert(
-        self, id: BId, data: OCreate, session: AgnosticDatabase[Any], update: bool = False, *args: Any, **kwargs: Any
-    ) -> OModel | None:
+        self, id: BId, data: OCreate, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any
+    ) -> OModel:
         entity_db = await self.get(id=id, session=session)
-        
+
         if not entity_db:
             return await self.create(data=data, session=session)
-        
-        if not update:
-            return entity_db
-        
+
         entity_data = jsonable_encoder(data)
         if isinstance(data, dict):
             update_data = data

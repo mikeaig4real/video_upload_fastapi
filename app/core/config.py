@@ -46,7 +46,7 @@ class S3_CONFIG_TYPE(TypedDict):
     region: OPTIONAL_STR_TYPE
 
 
-class UPLOAD_BUCKET_ENUM(Enum):
+class UPLOAD_BUCKET_ENUM(str, Enum):
     CLOUDINARY = "cloudinary"
     S3 = "s3"
     GOOGLE_CLOUD_STORAGE = "google_cloud_storage"

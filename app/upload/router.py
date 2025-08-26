@@ -1,7 +1,7 @@
 from typing import List
 from fastapi import APIRouter
 from app.auth.deps import RequireCurrentUser
-from app.models.filter import FilterType
+from app.models.filter import FilterOptionsType
 from app.models.id import IDType
 from app.models.success import SuccessModel
 from app.responses import SuccessResponse
@@ -28,12 +28,17 @@ async def get_params(
 
 # todo: implement local upload
 @router.post("/local", response_model=SuccessModel[UploadPublic])
-async def upload_local(id: IDType, session: RequireSession, current_user: RequireCurrentUser):
+async def upload_local(
+    id: IDType, session: RequireSession, current_user: RequireCurrentUser
+):
     return SuccessResponse({})
+
 
 # todo: implement bucket upload
 @router.post("/bucket", response_model=SuccessModel[List[UploadPublic]])
 async def upload_bucket(
-    options: FilterType, session: RequireSession, current_user: RequireCurrentUser
+    options: FilterOptionsType,
+    session: RequireSession,
+    current_user: RequireCurrentUser,
 ):
     return SuccessResponse({})

@@ -1,6 +1,6 @@
 from enum import Enum
 
-class UPLOAD_STATUS_ENUM(Enum):
+class UPLOAD_STATUS_ENUM(str, Enum):
     IDLE = "idle"
     UPLOADING = "uploading"
     PROCESSING = "processing"
