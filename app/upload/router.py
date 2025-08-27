@@ -20,7 +20,7 @@ async def get_params(
     upload: UploadType, _: RequireSession, current_user: RequireCurrentUser
 ):
     """TODO:
-    1. check if hash already exists in db too?
+    1. check if hash already exists in db too? probably validate size and type too?
     # video = video_crud.find_by_hash(hash=upload.upload_hash)
     2. Save some residue data incase the process is not completed properly
     3. Schedule a background task in advance with retries, use upload_status to check if upload was complete
