@@ -19,7 +19,13 @@ router = APIRouter(prefix="/upload")
 async def get_params(
     upload: UploadType, _: RequireSession, current_user: RequireCurrentUser
 ):
-    # todo: check upload_hash for possible duplicate upload
+    """TODO:
+    1. Check if video with the same hash already exists
+    2. If yes, raise an error on footprint already existing
+    3. If no, persist some info about the video in database (adjust video models as needed)
+    4. Create a Celery job that will check all uploads have completed in status within time frame,
+    or else destroy the video's orphaned uploads
+    """
     # video = video_crud.find_by_hash(hash=upload.upload_hash)
     asset_id = f"{upload.folder}/{current_user.id}/{upload.title}"
     params = uploader_crud.generate_params(asset_id=asset_id, resource_type="video")
