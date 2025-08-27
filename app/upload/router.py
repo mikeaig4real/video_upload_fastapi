@@ -27,6 +27,7 @@ async def get_params(
     if true, kill task
     else, use asset id to grab info from bucket, and persist it, 
     else if data did not even get to bucket, delete existing residue data, kill task too
+    PS: make sure to make possible modifications to model/schemas as needed
     """
     asset_id = f"{upload.folder}/{current_user.id}/{upload.title}"
     params = uploader_crud.generate_params(asset_id=asset_id, resource_type="video")
