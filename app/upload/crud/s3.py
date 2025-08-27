@@ -1,12 +1,12 @@
 from app.core.config import UPLOAD_BUCKET_ENUM, get_config
 from app.upload.crud.base import BaseUploader, UploadParams
-from boto3 import client # type: ignore
+from boto3 import client # pyright: ignore[reportUnknownVariableType]
 config = get_config()
 
 class S3Uploader(BaseUploader):
     def __init__(self):
         self.bucket = config.S3_CONFIG["bucket"]
-        self.s3 = client("s3") # type: ignore
+        self.s3 = client("s3") # pyright: ignore[reportUnknownMemberType]
 
     def generate_params(
         self, asset_id: str, resource_type: str = "video"

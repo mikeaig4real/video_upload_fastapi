@@ -33,3 +33,7 @@ starlette
 typing-extensions
 cloudinary
 boto3
+types-boto3
+celery[redis]
+redis
+flower

@@ -8,6 +8,7 @@ from app.user.router import router as user_router
 from app.auth.router import router as auth_router
 from app.video.router import router as video_router
 from app.upload.router import router as upload_router
+from app.workflows.num_chain import num_workflow
 
 
 config = get_config()
@@ -54,6 +55,13 @@ app.include_router(user_router, prefix=config.API_PREFIX)
 app.include_router(auth_router, prefix=config.API_PREFIX)
 app.include_router(video_router, prefix=config.API_PREFIX)
 app.include_router(upload_router, prefix=config.API_PREFIX)
+
+
+# @app.get("/num_chain/{x}")
+# def run_number_workflow(x: int):
+#     task = num_workflow(x)  # type: ignore
+#     return {"task_id": task.id}
+
 
 if len(config.ALL_CORS_ORIGINS):
     app.add_middleware(
