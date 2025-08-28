@@ -15,6 +15,7 @@ config = get_config()
 class VideoBase(SQLModel):
     title: str = Field(index=True)
     description: Optional[str] = None
+    duration: int
     is_public: bool = True
     size: int = Field(gt=0, le=config.MAX_VIDEO_SIZE)
     label: VIDEO_LABEL_ENUM

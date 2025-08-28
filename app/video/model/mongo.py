@@ -12,6 +12,7 @@ from app.user.model.mongo import User
 class VideoBase(BaseModel):
     title: str
     description: Optional[str] = None
+    duration: int = Field(gt=0)
     is_public: bool = True
     size: int
     label: VIDEO_LABEL_ENUM
@@ -28,6 +29,7 @@ class VideoBase(BaseModel):
 class Video(Model):
     title: str = Field()
     description: Optional[str] = None
+    duration: int = Field(gt=0)
     is_public: bool = True
     size: int
     label: VIDEO_LABEL_ENUM
