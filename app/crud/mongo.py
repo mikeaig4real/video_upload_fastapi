@@ -19,22 +19,32 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         self.model = model
         self.engine: AIOEngine = get_engine()
 
-    async def create(self, data: OCreate, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any) -> OModel:
+    async def create(self, *, data: OCreate, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel:
         entity_data = jsonable_encoder(data)
         entity = self.model(**entity_data)
         return await self.engine.save(entity)  # type: ignore
 
-    async def get(self, id: BId, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any) -> OModel | None:
+    async def get(self, *, id: BId, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel | None:
         if id is None:
             return None
         return await self.engine.find_one(self.model, self.model.id == id)  # type: ignore
 
+    async def get_by(self, *, field: str | None, value: Any, many: bool = False, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel | None:
+        if field is None:
+            raise ValueError("Field name must be provided")
+        column = getattr(self.model, field, None)
+        if column is None:
+            raise ValueError(f"Invalid field name: {field}")
+        if many:
+            return await self.engine.find(self.model, column == value)  # type: ignore
+        return await self.engine.find_one(self.model, column == value)  # type: ignore
+
     async def list(
         self,
+        *,
         options: BOptions,
         session: AgnosticDatabase[Any],
         filters: dict[str, Any] = {},
-        *args: Any,
         **kwargs: Any,
     ) -> List[OModel]:
         limit = options.get("limit")
@@ -64,7 +74,7 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         return list(await self.engine.find(self.model, filters, **offset))  # type: ignore
 
     async def update(
-        self, id: BId, data: OUpdate, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any
+        self, *, id: BId, data: OUpdate, session: AgnosticDatabase[Any], **kwargs: Any
     ) -> OModel | None:
         entity_db = await self.get(id=id, session=session)
         if not entity_db:
@@ -82,7 +92,7 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         return entity_db
 
     async def upsert(
-        self, id: BId, data: OCreate, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any
+        self, *, id: BId, data: OCreate, session: AgnosticDatabase[Any], **kwargs: Any
     ) -> OModel:
         entity_db = await self.get(id=id, session=session)
 
@@ -101,7 +111,7 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         await self.engine.save(entity_db)  # type: ignore
         return entity_db
 
-    async def delete(self, id: BId, session: AgnosticDatabase[Any], *args: Any, **kwargs: Any) -> OModel | None:
+    async def delete(self, *, id: BId, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel | None:
         entity_db = await self.get(id=id, session=session)
         if entity_db:
             await self.engine.delete(entity_db)  # type: ignore

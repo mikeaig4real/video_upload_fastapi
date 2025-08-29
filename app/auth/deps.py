@@ -22,7 +22,7 @@ async def get_current_user(token: RequireOAuth, session: RequireSession):
     try:
         decoded: ToTokenType = decode_token(token)
         user_email = decoded.get("sub", None)
-        user = await user_crud.find_by_email(email=user_email, session=session) # type: ignore
+        user = await user_crud.get_by(field="email", value=user_email, session=session) # type: ignore
         if not user_email or not user:
             raise auth_exception
         return user

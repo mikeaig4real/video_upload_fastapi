@@ -19,25 +19,28 @@ class BOptions(TypedDict, total=False):
 
 class BaseCrud(ABC, Generic[BModel, BCreate, BUpdate]):
     @abstractmethod
-    async def create(self, data: BCreate, *args: Any, **kwargs: Any) -> BModel: ...
+    async def create(self, *, data: BCreate, **kwargs: Any) -> BModel: ...
 
     @abstractmethod
-    async def get(self, id: BId, *args: Any, **kwargs: Any) -> BModel | None: ...
+    async def get(self, *, id: BId, **kwargs: Any) -> BModel | None: ...
 
     @abstractmethod
-    async def list(
-        self, options: BOptions, *args: Any, **kwargs: Any
-    ) -> list[BModel]: ...
+    async def get_by(
+        self, *, field: str, value: Any, many: bool, **kwargs: Any
+    ) -> BModel | list[BModel] | None: ...
+
+    @abstractmethod
+    async def list(self, *, options: BOptions, **kwargs: Any) -> list[BModel]: ...
 
     @abstractmethod
     async def update(
-        self, id: BId, data: BUpdate, *args: Any, **kwargs: Any
+        self, *, id: BId, data: BUpdate, **kwargs: Any
     ) -> BModel | None: ...
 
     @abstractmethod
     async def upsert(
-        self, id: BId, data: BCreate, *args: Any, **kwargs: Any
+        self, *, id: BId, data: BCreate, **kwargs: Any
     ) -> BModel | None: ...
 
     @abstractmethod
-    async def delete(self, id: BId, *args: Any, **kwargs: Any) -> BModel | None: ...
+    async def delete(self, *, id: BId, **kwargs: Any) -> BModel | None: ...

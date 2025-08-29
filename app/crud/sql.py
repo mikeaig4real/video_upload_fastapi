@@ -1,6 +1,6 @@
 from sqlmodel import SQLModel, Session, select
 from sqlalchemy import asc, desc
-from typing import Any, List, TypeVar
+from typing import Any, TypeVar
 from app.crud.base import BaseCrud, BId, BOptions
 
 
@@ -16,7 +16,7 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         self.model = model
 
     async def create(
-        self, data: SCreate, session: Session, *args: Any, **kwargs: Any
+        self, *, data: SCreate, session: Session, **kwargs: Any
     ) -> SModel:
         entity = self.model.model_validate(data)
         session.add(entity)
@@ -24,19 +24,37 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         session.refresh(entity)
         return entity
 
-    async def get(self, id: BId, session: Session) -> SModel | None:
+    async def get(self, *, id: BId, session: Session, **kwargs: Any) -> SModel | None:
         if id is None:
             return None
         return session.get(self.model, id)
 
+    async def get_by(
+        self,
+        *,
+        field: str | None,
+        value: Any,
+        many: bool = False,
+        session: Session,
+        **kwargs: Any,
+    ) -> SModel | list[SModel] | None:
+        if field is None:
+            raise ValueError("Field name must be provided")
+        column = getattr(self.model, field, None)
+        if column is None:
+            raise ValueError(f"Invalid field name: {field}")
+        if many:
+            return list(session.exec(select(self.model).where(column == value)).all())
+        return session.exec(select(self.model).where(column == value)).first()
+
     async def list(
         self,
+        *,
         options: BOptions,
         session: Session,
         filters: dict[str, Any] = {},
-        *args: Any,
         **kwargs: Any,
-    ) -> List[SModel]:
+    ) -> list[SModel]:
         page = options.get("page")
         if page is None:
             page = 1
@@ -65,9 +83,9 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         )
 
     async def update(
-        self, id: BId, data: SUpdate, session: Session, *args: Any, **kwargs: Any
+        self, *, id: BId, data: SUpdate, session: Session, **kwargs: Any
     ) -> SModel | None:
-        entity = await self.get(id, session=session)
+        entity = await self.get(id=id, session=session)
         if not entity:
             return None
         model_data = data.model_dump(exclude_unset=True)
@@ -85,7 +103,7 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         *args: Any,
         **kwargs: Any,
     ) -> SModel:
-        entity = await self.get(id, session=session)
+        entity = await self.get(id=id, session=session)
 
         if not entity:
             return await self.create(data=data, session=session)
@@ -98,9 +116,9 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         return entity
 
     async def delete(
-        self, id: BId, session: Session, *args: Any, **kwargs: Any
+        self, *, id: BId, session: Session, **kwargs: Any
     ) -> SModel | None:
-        entity = await self.get(id, session=session)
+        entity = await self.get(id=id, session=session)
         if not entity:
             return None
         session.delete(entity)

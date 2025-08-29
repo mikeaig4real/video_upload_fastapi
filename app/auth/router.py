@@ -12,7 +12,7 @@ router = APIRouter(prefix="/auth")
 async def login(form_data: RequireForm, session: RequireSession):
     user_email = form_data.username
     user_pass = form_data.password
-    user = await user_crud.find_by_email(email=user_email, session=session)  # type: ignore
+    user = await user_crud.get_by(field="email", value=user_email, session=session)  # type: ignore
     if not user:
         raise make_exception(
             code=status.HTTP_400_BAD_REQUEST, detail="Invalid credentials"
@@ -30,7 +30,7 @@ async def register(
     user_data: UserCreate,
     session: RequireSession,
 ):
-    user_exists = await user_crud.find_by_email(email=user_data.email, session=session)  # type: ignore
+    user_exists = await user_crud.get_by(field="email", value=user_data.email, session=session)  # type: ignore
     if user_exists:
         raise make_exception(
             code=status.HTTP_409_CONFLICT, detail="User with that email already exists"
