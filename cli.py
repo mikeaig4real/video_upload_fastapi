@@ -33,6 +33,20 @@ def worker():
             "--pool=solo",
         ]
     )
+    
+@app.command()
+def beat():
+    """Run Celery beat"""
+    typer.echo("🕰️ Starting Celery beat...")
+    subprocess.run(
+        [
+            "celery",
+            "-A",
+            "app.worker.celery_app",
+            "--beat",
+            "--loglevel=info",
+        ]
+    )
 
 
 @app.command()
@@ -50,6 +64,7 @@ def all():
     processes = [
         start_app,
         ["celery", "-A", "app.worker.celery_app", "worker", "--loglevel=info", "--pool=solo"],
+        ["celery", "-A", "app.worker.celery_app", "beat", "--loglevel=info"],
         ["celery", "-A", "app.worker.celery_app", "flower"],
     ]
     procs = [subprocess.Popen(p) for p in processes]

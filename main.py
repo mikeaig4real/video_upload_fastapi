@@ -7,6 +7,7 @@ from app.exceptions import Error, NotFound, ServerError, Unauthorized
 from app.user.router import router as user_router
 from app.auth.router import router as auth_router
 from app.video.router import router as video_router
+from app.uploader.router import router as uploader_router
 from app.upload.router import router as upload_router
 # from app.workflows.num_chain import num_workflow
 
@@ -16,9 +17,7 @@ config = get_config()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    from app.db.connect import connect
-
-    try_db, init_db, _, _ = connect()
+    from app.db.connect import try_db, init_db
     await try_db()
     init_db()
     yield
@@ -54,6 +53,7 @@ async def http_exception_handler(_, exc: HTTPException):
 app.include_router(user_router, prefix=config.API_PREFIX)
 app.include_router(auth_router, prefix=config.API_PREFIX)
 app.include_router(video_router, prefix=config.API_PREFIX)
+app.include_router(uploader_router, prefix=config.API_PREFIX)
 app.include_router(upload_router, prefix=config.API_PREFIX)
 
 

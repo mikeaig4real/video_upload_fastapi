@@ -3,21 +3,23 @@ from typing import Optional
 from datetime import datetime, timezone
 from pydantic import BaseModel
 
-from app.core.config import UPLOAD_BUCKET_ENUM
+from app.core.config import UPLOAD_BUCKET_ENUM, get_config
 from app.models.video import UPLOAD_STATUS_ENUM, VIDEO_LABEL_ENUM
 from app.models.http_url import HttpCheck
 from app.user.model.mongo import User
 
+config = get_config()
+
 
 class VideoBase(BaseModel):
     title: str
-    description: Optional[str] = None
-    duration: int = Field(gt=0)
+    description: Optional[str] = ""
+    duration: float = Field(gt=0)
     is_public: bool = True
     size: int
     label: VIDEO_LABEL_ENUM
     upload_hash: str
-    upload_provider: UPLOAD_BUCKET_ENUM = UPLOAD_BUCKET_ENUM.CLOUDINARY
+    upload_provider: UPLOAD_BUCKET_ENUM = config.UPLOAD_BUCKET
     asset_id: str
     thumbnail_url: Optional[str] = None
     playback_url: HttpCheck
@@ -28,13 +30,13 @@ class VideoBase(BaseModel):
 
 class Video(Model):
     title: str = Field()
-    description: Optional[str] = None
-    duration: int = Field(gt=0)
+    description: Optional[str] = ""
+    duration: float = Field(gt=0)
     is_public: bool = True
     size: int
     label: VIDEO_LABEL_ENUM
     upload_hash: str = Field(unique=True)
-    upload_provider: UPLOAD_BUCKET_ENUM = Field(default=UPLOAD_BUCKET_ENUM.CLOUDINARY)
+    upload_provider: UPLOAD_BUCKET_ENUM = config.UPLOAD_BUCKET
     asset_id: str = Field(unique=True)
     thumbnail_url: Optional[str] = None
     playback_url: HttpCheck

@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from typing import Any, Dict, List, Tuple, TypeVar
 from fastapi.encoders import jsonable_encoder
 from odmantic import AIOEngine, Model
@@ -29,7 +30,7 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
             return None
         return await self.engine.find_one(self.model, self.model.id == id)  # type: ignore
 
-    async def get_by(self, *, field: str | None, value: Any, many: bool = False, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel | None:
+    async def get_by(self, *, field: str | None, value: Any, many: bool = False, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel | list[OModel] | None:
         if field is None:
             raise ValueError("Field name must be provided")
         column = getattr(self.model, field, None)
@@ -87,7 +88,8 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         for field in entity_data:
             if field in update_data:
                 setattr(entity_db, field, update_data[field])
-        # TODO: Check if this saves changes with the setattr calls
+        if hasattr(entity_db, "updated_at"):
+            entity_db.updated_at = datetime.now(timezone.utc)
         await self.engine.save(entity_db)  # type: ignore
         return entity_db
 

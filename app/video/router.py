@@ -1,5 +1,5 @@
 from typing import Any, List, cast
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 from app.auth.deps import RequireCurrentUser
 from app.auth.utils import make_exception
 from app.crud.base import BOptions
@@ -7,7 +7,14 @@ from app.models.filter import FilterOptionsType
 from app.models.id import IDType
 from app.models.success import SuccessModel
 from app.responses import SuccessResponse
-from app.video.crud import video_crud, VideoUpdate, VideoPublic, VideoCreate, VideoBase, Video # pyright: ignore[reportUnusedImport]
+from app.video.crud import (
+    video_crud,
+    VideoUpdate,
+    VideoPublic,
+    VideoCreate,
+    VideoBase, # pyright: ignore[reportUnusedImport]
+    Video, # pyright: ignore[reportUnusedImport]
+)  # pyright: ignore[reportUnusedImport]
 from app.db.deps import RequireSession
 
 router = APIRouter(prefix="/video")
@@ -25,7 +32,7 @@ async def create(
 async def get(id: IDType, session: RequireSession, _: RequireCurrentUser):
     video = await video_crud.get(id=id, session=session)  # type: ignore
     if not video:
-        raise make_exception(code=404, detail="Video not found")
+        raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Video not found")
     return SuccessResponse(video)
 
 
@@ -59,7 +66,7 @@ async def update(
 ):
     video = await video_crud.update(id=id, data=update, session=session)  # type: ignore
     if not video:
-        raise make_exception(code=404, detail="Video not found")
+        raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Video not found")
     return SuccessResponse(video)
 
 
@@ -67,5 +74,5 @@ async def update(
 async def delete(id: IDType, session: RequireSession, _: RequireCurrentUser):
     video = await video_crud.delete(id=id, session=session)  # type: ignore
     if not video:
-        raise make_exception(code=404, detail="Video not found")
+        raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Video not found")
     return SuccessResponse(video)

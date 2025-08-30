@@ -1,52 +1,35 @@
-from typing import List
-from fastapi import APIRouter
+from fastapi import APIRouter, status
 from app.auth.deps import RequireCurrentUser
-from app.models.filter import FilterOptionsType
-from app.models.id import IDType
+from app.auth.utils import make_exception
 from app.models.success import SuccessModel
 from app.responses import SuccessResponse
-from app.upload.model import (
-    UploadType,
-    UploadPublic,
-)  # pyright: ignore[reportUnusedImport]
-from app.upload.crud import uploader_crud
+from app.upload.crud import upload_crud, UploadUpdate, UploadPublic
 from app.db.deps import RequireSession
 
 router = APIRouter(prefix="/upload")
 
 
-@router.get("/params", response_model=SuccessModel[UploadPublic])
-async def get_params(
-    upload: UploadType, _: RequireSession, current_user: RequireCurrentUser
-):
-    """TODO:
-    1. check if hash already exists in db too? probably validate size and type too?
-    # video = video_crud.find_by_hash(hash=upload.upload_hash)
-    2. Save some residue data incase the process is not completed properly
-    3. Schedule a background task in advance with retries, use upload_status to check if upload was complete
-    if true, kill task
-    else, use asset id to grab info from bucket, and persist it, 
-    else if data did not even get to bucket, delete existing residue data, kill task too
-    PS: make sure to make possible modifications to model/schemas as needed
-    """
-    asset_id = f"{upload.folder}/{current_user.id}/{upload.title}"
-    params = uploader_crud.generate_params(asset_id=asset_id, resource_type="video")
-    return SuccessResponse(params)
+@router.get("/", response_model=SuccessModel[UploadPublic])
+async def get(asset_id: str, session: RequireSession, _: RequireCurrentUser):
+    upload = await upload_crud.get_by(field="asset_id", value=asset_id, session=session)  # type: ignore
+    if not upload:
+        raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Upload not found")
+    return SuccessResponse(upload)
 
 
-# todo: implement local upload
-@router.post("/local", response_model=SuccessModel[UploadPublic])
-async def upload_local(
-    id: IDType, session: RequireSession, current_user: RequireCurrentUser
-):
-    return SuccessResponse({})
+@router.patch("/{id}", response_model=SuccessModel[UploadPublic])
+async def update(id: str, update: UploadUpdate, session: RequireSession, _: RequireCurrentUser):
+    upload = await upload_crud.update(
+        id=id, data=update, session=session  # type: ignore
+    )
+    if not upload:
+        raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Upload not found")
+    return SuccessResponse(upload)
 
 
-# todo: implement bucket upload
-@router.post("/bucket", response_model=SuccessModel[List[UploadPublic]])
-async def upload_bucket(
-    options: FilterOptionsType,
-    session: RequireSession,
-    current_user: RequireCurrentUser,
-):
-    return SuccessResponse({})
+@router.delete("/{id}", response_model=SuccessModel[UploadPublic])
+async def delete(id: str, session: RequireSession, _: RequireCurrentUser):
+    upload = await upload_crud.delete(id=id, session=session)  # type: ignore
+    if not upload:
+        raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Upload not found")
+    return SuccessResponse(upload)

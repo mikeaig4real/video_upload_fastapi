@@ -14,13 +14,13 @@ config = get_config()
 
 class VideoBase(SQLModel):
     title: str = Field(index=True)
-    description: Optional[str] = None
-    duration: int
+    description: Optional[str] = ""
+    duration: float
     is_public: bool = True
     size: int = Field(gt=0, le=config.MAX_VIDEO_SIZE)
     label: VIDEO_LABEL_ENUM
     upload_hash: str = Field(sa_column_kwargs={"unique": True})
-    upload_provider: UPLOAD_BUCKET_ENUM = Field(default=UPLOAD_BUCKET_ENUM.CLOUDINARY)
+    upload_provider: UPLOAD_BUCKET_ENUM = config.UPLOAD_BUCKET
     asset_id: str = Field(sa_column_kwargs={"unique": True})
     thumbnail_url: HttpCheck = Field(regex=URL_REGEX)
     playback_url: HttpCheck = Field(regex=URL_REGEX)

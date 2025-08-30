@@ -1,3 +1,4 @@
+from typing import Any
 from sqlmodel import Session
 from app.crud.base import BId
 from app.crud.sql import SQLCrud
@@ -13,7 +14,7 @@ from app.video.model.sql import (
 class VideoCrud(SQLCrud[Video, VideoCreate, VideoUpdate]):
 
     async def create(
-        self, data: VideoCreate, session: Session, user_id: int
+        self, *, data: VideoCreate, session: Session, user_id: int, **kwargs: Any
     ) -> Video:
         entity = self.model.model_validate(data)
         entity.user_id = user_id

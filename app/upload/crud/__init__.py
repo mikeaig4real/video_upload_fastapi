@@ -2,11 +2,14 @@ from app.core.config import get_config
 
 config = get_config()
 
-if config.UPLOAD_STORAGE_TYPE.is_bucket and config.UPLOAD_BUCKET.is_cloudinary:
-    from app.upload.crud.cloudinary import CloudinaryUploader
 
-    uploader_crud = CloudinaryUploader()
-elif config.UPLOAD_STORAGE_TYPE.is_bucket and config.UPLOAD_BUCKET.is_s3:
-    from app.upload.crud.s3 import S3Uploader
+if config.IS_SQL:
+    from app.upload.crud.sql import crud
+    from app.upload.model.sql import Upload, UploadPublic, UploadUpdate, UploadCreate  # type: ignore
 
-    uploader_crud = S3Uploader()
+    upload_crud = crud
+else:
+    from app.upload.crud.mongo import crud
+    from app.upload.model.mongo import Upload, UploadPublic, UploadUpdate, UploadCreate  # type: ignore
+
+    upload_crud = crud

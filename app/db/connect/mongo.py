@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 import logging
 from typing import Any, Generator
 
@@ -53,7 +54,10 @@ def get_engine():
 
 def get_session() -> Generator[core.AgnosticDatabase[Any], None, None]:
     yield db
-    
-    
+
+@contextmanager
+def get_session_context() -> Generator[core.AgnosticDatabase[Any], None, None]:
+    yield from get_session()
+
 def get_sync_engine():
     return sync_engine

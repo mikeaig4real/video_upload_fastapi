@@ -1,3 +1,4 @@
+from contextlib import contextmanager
 from typing import Generator
 from sqlalchemy import Engine
 from sqlmodel import create_engine, SQLModel
@@ -6,6 +7,7 @@ from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixe
 from app.core.config import get_config
 from app.user.model.sql import *
 from app.video.model.sql import *
+from app.upload.model.sql import *
 import logging
 from sqlalchemy import Engine
 from sqlmodel import Session, select
@@ -42,7 +44,6 @@ def init_db():
     # use alembic
     pass
 
-
 def get_engine():
     return engine
 
@@ -50,3 +51,7 @@ def get_engine():
 def get_session() -> Generator[Session, None, None]:
     with Session(engine) as session:
         yield session
+
+@contextmanager
+def get_session_context() -> Generator[Session, None, None]:
+    yield from get_session()

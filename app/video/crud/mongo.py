@@ -17,7 +17,7 @@ from app.video.model.mongo import (
 class VideoCrud(MONGOCrud[Video, VideoCreate, VideoUpdate]):
 
     async def create(
-        self, data: VideoCreate, session: AgnosticDatabase[Any], user_id: ObjectId
+        self, *, data: VideoCreate, session: AgnosticDatabase[Any], user_id: ObjectId, **kwargs: Any
     ) -> Video:
         entity_data = jsonable_encoder(data)
         user_id = ObjectId(user_id)
@@ -30,7 +30,7 @@ class VideoCrud(MONGOCrud[Video, VideoCreate, VideoUpdate]):
         return await self.engine.save(entity)  # type: ignore
     
     async def upsert(
-        self, id: BId, data: VideoCreate, session: AgnosticDatabase[Any], user_id: ObjectId
+        self, *, id: BId, data: VideoCreate, session: AgnosticDatabase[Any], user_id: ObjectId, **kwargs: Any
     ) -> Video:
         if id is None:
             return await self.create(data=data, session=session, user_id=user_id)

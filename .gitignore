@@ -52,6 +52,9 @@ dist/
 # Misc
 *.bak
 *.tmp
+celerybeat-schedule
+celerybeat-schedule-shm
+celerybeat-schedule-wal
 
 # typings
 **/typings/

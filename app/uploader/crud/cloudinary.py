@@ -1,9 +1,11 @@
 import threading
 import time
-from typing import TypedDict
+from typing import Any, TypedDict
 import cloudinary
+import cloudinary.api
 from app.core.config import UPLOAD_BUCKET_ENUM, get_config
-from app.upload.crud.base import BaseUploader, UploadParams
+from app.core.utils import CUSTOM_LOGGER
+from app.uploader.crud.base import BaseUploader, UploadParams
 
 config = get_config()
 
@@ -16,6 +18,37 @@ OptionsType = TypedDict(
         "eager": str,
     },
 )
+
+from typing import TypedDict, List
+
+
+class DerivedResource(TypedDict):
+    transformation: str
+    transformation_signature: str
+    format: str
+    bytes: int
+    id: str
+    url: str
+    secure_url: str
+    extension: str
+
+
+class CloudinaryResource(TypedDict):
+    asset_id: str
+    public_id: str
+    format: str
+    version: int
+    resource_type: str
+    type: str
+    created_at: str
+    bytes: int
+    width: int
+    height: int
+    folder: str
+    url: str
+    secure_url: str
+    next_cursor: str
+    derived: List[DerivedResource]
 
 
 class CloudinaryUploader(BaseUploader):
@@ -34,8 +67,8 @@ class CloudinaryUploader(BaseUploader):
                     cls._has_init = True
         return super().__new__(cls)
 
-    def generate_params(
-        self, asset_id: str, resource_type: str = "video"
+    async def generate_params(
+        self, *, asset_id: str, resource_type: str = "video", **kwargs: Any
     ) -> UploadParams:
         options: OptionsType = {
             "public_id": asset_id,
@@ -57,3 +90,21 @@ class CloudinaryUploader(BaseUploader):
             "asset_id": asset_id,
             "upload_provider": UPLOAD_BUCKET_ENUM.CLOUDINARY,
         }
+
+    async def get_resource(
+        self, *, asset_id: str, resource_type: str = "video", **kwargs: Any
+    ) -> CloudinaryResource:
+        try:
+            CUSTOM_LOGGER.info(f"Fetching Cloudinary resource {asset_id}")
+            resource = cloudinary.api.resource(  # type: ignore
+                asset_id,
+                resource_type=resource_type,
+            )
+            return resource  # type: ignore
+        except cloudinary.exceptions.NotFound as e:  # type: ignore
+            # Cloudinary raises error if resource does not exist
+            raise FileNotFoundError(f"Asset with id {asset_id} not found") from e
+        except Exception as e:
+            raise RuntimeError(
+                f"Failed to retrieve Cloudinary resource {asset_id}: {e}"
+            ) from e
