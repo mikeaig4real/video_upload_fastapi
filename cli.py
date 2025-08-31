@@ -80,7 +80,6 @@ def all():
         start_app,
         WORKER_CMD,
         BEAT_CMD,
-        FLOWER_CMD,
     ]
     procs = [subprocess.Popen(p) for p in processes]
     try:

@@ -1,9 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
-from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
-from slowapi.util import get_remote_address
+from slowapi import _rate_limit_exceeded_handler
 from app.core.config import get_config
 from app.core.utils import custom_generate_unique_id
 from app.exceptions import Error, NotFound, ServerError, Unauthorized
@@ -12,7 +11,7 @@ from app.auth.router import router as auth_router
 from app.video.router import router as video_router
 from app.uploader.router import router as uploader_router
 from app.upload.router import router as upload_router
-
+from app.core.rate_limiter import limiter
 
 config = get_config()
 
@@ -24,8 +23,6 @@ async def lifespan(app: FastAPI):
     await try_db()
     init_db()
     yield
-
-limiter = Limiter(key_func=get_remote_address)
 
 app = FastAPI(
     title=config.PROJECT_NAME if config.PROJECT_NAME else "Default",
