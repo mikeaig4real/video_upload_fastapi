@@ -37,3 +37,4 @@ types-boto3
 celery[redis]
 redis
 flower
+slowapi

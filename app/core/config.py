@@ -124,8 +124,10 @@ class Config(BaseSettings):
     API_PREFIX: str = "/api"
     MONGO_ATLAS_URI: OPTIONAL_STR_TYPE = None
     USE_MIGRATIONS: bool = False
-    
-    REDIS_URL: str | None = None
+
+    REDIS_URL: OPTIONAL_STR_TYPE = None
+    FLOWER_USER: OPTIONAL_STR_TYPE = None
+    FLOWER_PASS: OPTIONAL_STR_TYPE = None
 
     MAX_VIDEO_SIZE_MB: int = 10  # Maximum video size in megabytes
 

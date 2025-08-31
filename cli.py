@@ -20,12 +20,18 @@ WORKER_CMD = [
 BEAT_CMD = ["celery", "-A", "app.worker.celery_app", "beat", "--loglevel=info"]
 FLOWER_USER = os.environ.get("FLOWER_USER")
 FLOWER_PASS = os.environ.get("FLOWER_PASS")
+FLOWER_PORT = os.environ.get("FLOWER_PORT", "5555")
+FLOWER_ROUTE = os.environ.get("FLOWER_ROUTE", "/worker")
+FLOWER_ADDRESS = os.environ.get("FLOWER_ADDRESS", "0.0.0.0")
 FLOWER_CMD = [
     "celery",
     "-A",
     "app.worker.celery_app",
     "flower",
     f"--basic_auth={FLOWER_USER}:{FLOWER_PASS}",
+    f"--port={FLOWER_PORT}",
+    f"--address={FLOWER_ADDRESS}",
+    f"--url_prefix={FLOWER_ROUTE}",
 ]
 
 
@@ -83,7 +89,15 @@ def all():
     except KeyboardInterrupt:
         typer.echo("🛑 Shutting down...")
         for p in procs:
-            p.terminate()
+            try:
+                p.terminate()
+            except Exception:
+                pass
+        for p in procs:
+            try:
+                p.wait(timeout=5)
+            except Exception:
+                pass
 
 
 if __name__ == "__main__":
