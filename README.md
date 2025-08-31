@@ -1,18 +1,29 @@
 # Video Upload FastAPI
 
-A robust, production-ready FastAPI backend for user authentication, video upload, and management. Supports both SQL and MongoDB backends, JWT authentication, and secure password hashing. **WORK IN PROGRESS, UPDATES PENDING**
+A modern, production-ready FastAPI backend for user authentication, video upload, and management. This project is designed as a highly extensible, database-agnostic, and bucket-agnostic template, making it easy to adapt for a wide range of use cases. It features strong typing, generic CRUD patterns, Celery-powered background processing, and robust security. Duplicate video uploads are prevented by design. This backend is built to complement the [video_upload_react_ui](https://github.com/mikeaig4real/video_upload_react_ui) frontend project.
 
-## Features
+## WORK IN PROGRESS, UPDATES PENDING
 
-- User registration, login, and authentication (JWT)
-- Video upload, update, delete, and listing
-- SQL (Postgres/SQLite) and MongoDB support
-- Secure password hashing (bcrypt via passlib)
-- CORS configuration for frontend integration
-- Alembic migrations for SQL databases
-- Pydantic models and validation
-- Generic CRUD architecture for DRY code
-- Environment-based configuration via `.env`
+## Deployment
+
+This backend is currently deployed at: [https://video-upload-fastapi.onrender.com/](https://video-upload-fastapi.onrender.com/)
+
+## Key Strengths & Features
+
+- **Database Agnostic**: Easily switch between SQL (Postgres/SQLite) and MongoDB backends with minimal code changes.
+- **Bucket Agnostic**: Supports Cloudinary, S3, and Google Cloud Storage for video uploads; can be extended to other providers.
+- **Extensive Use of Types**: Strong typing throughout the codebase using Pydantic, TypedDict, and custom Enums for safer, more maintainable code.
+- **Generic CRUD Pattern**: DRY, reusable CRUD logic for all models, making it easy to add new resources.
+- **Celery Worker Integration**: Background tasks (e.g., video processing) handled via Celery and Redis, with Flower for monitoring.
+- **Duplicate Prevention**: Prevents uploading duplicate videos by design.
+- **Environment-based Configuration**: All secrets and settings loaded from `.env` for security and flexibility.
+- **Robust Security**: JWT authentication, secure password hashing (bcrypt), and strict separation of secrets.
+- **CORS & Frontend Integration**: Configurable CORS for seamless integration with modern frontends.
+- **Extensible Upload System**: Easily switch between bucket and file system storage.
+- **Code Quality Tools**: Type-checked (mypy), linted (ruff), formatted (black), and pre-commit hooks for consistency.
+- **Alembic Migrations**: For SQL databases, supports schema migrations out of the box.
+- **Comprehensive API**: User, video, and upload endpoints with clear separation of concerns.
+- **Health Check & Error Handling**: Built-in health endpoint and custom error handlers for reliability.
 
 ## Getting Started
 
@@ -76,6 +87,8 @@ uvicorn main:app --reload
 - `/api/user/` - Get, update, delete user
 - `/api/video/` - Create, list videos
 - `/api/video/{id}` - Get, update, delete video
+
+For more details and interactive API documentation, visit: [https://video-upload-fastapi.onrender.com/docs](https://video-upload-fastapi.onrender.com/docs)
 
 ## Testing
 
