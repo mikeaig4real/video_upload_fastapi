@@ -8,7 +8,7 @@ config = get_config()
 celery_app = Celery(
     "worker",
     broker=config.REDIS_URL,
-    backend=config.REDIS_URL,
+    backend=config.DB_URI,
     include=[
         "app.tasks.upload",
     ],
