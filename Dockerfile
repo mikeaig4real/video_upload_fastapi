@@ -9,11 +9,10 @@ COPY pyproject.toml pyproject.toml
 COPY . .
 
 RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+    pip install uv && \
+    uv pip install -r requirements.txt
 
 EXPOSE 8000
 
-# Use /data for persistent volumes (outside app source)
-VOLUME ["/data"]
-
+# Default: run API server
 CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

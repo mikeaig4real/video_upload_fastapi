@@ -1,0 +1,59 @@
+version: "3.9"
+
+services:
+  api:
+    build: .
+    command: uvicorn main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=production
+      - MONGO_ATLAS_URI=${MONGO_ATLAS_URI}
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  worker:
+    build: .
+    command: celery -A app.worker.celery_app worker --loglevel=info --pool=solo
+    environment:
+      - ENVIRONMENT=production
+      - MONGO_ATLAS_URI=${MONGO_ATLAS_URI}
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  beat:
+    build: .
+    command: celery -A app.worker.celery_app beat --loglevel=info
+    environment:
+      - ENVIRONMENT=production
+      - MONGO_ATLAS_URI=${MONGO_ATLAS_URI}
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  flower:
+    build: .
+    command: celery -A app.worker.celery_app flower
+    ports:
+      - "5555:5555"
+    environment:
+      - ENVIRONMENT=production
+      - MONGO_ATLAS_URI=${MONGO_ATLAS_URI}
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+    volumes:
+      - .:/app
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
