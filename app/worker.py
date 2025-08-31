@@ -1,12 +1,14 @@
 import asyncio
 # from datetime import timedelta
 from celery import Celery
-from celery.schedules import crontab # pyright: ignore[reportUnusedImport]
+from celery.schedules import crontab
 
+from app.core.config import get_config # pyright: ignore[reportUnusedImport]
+config = get_config()
 celery_app = Celery(
     "worker",
-    broker="redis://localhost:6379/0",
-    backend="redis://localhost:6379/0",
+    broker=config.REDIS_URL,
+    backend=config.REDIS_URL,
     include=[
         "app.tasks.upload",
     ],

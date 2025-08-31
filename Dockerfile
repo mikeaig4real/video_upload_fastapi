@@ -10,7 +10,7 @@ COPY . .
 
 RUN pip install --upgrade pip && \
     pip install uv && \
-    uv pip install -r requirements.txt
+    uv pip install -r requirements.txt --system
 
 EXPOSE 8000
 
