@@ -26,7 +26,7 @@ router = APIRouter(prefix="/video")
 async def create(
     video: VideoCreate, session: RequireSession, current_user: RequireCurrentUser, request: Request
 ):
-    video = await video_crud.upsert(id=None, data=video, user_id=current_user.id, session=session)  # type: ignore
+    video = await video_crud.upsert(field="upload_hash", value=video.upload_hash, data=video, user=current_user, session=session)  # type: ignore
     return SuccessResponse(video)
 
 

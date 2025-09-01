@@ -16,6 +16,7 @@ OptionsType = TypedDict(
         "overwrite": bool,
         "timestamp": int,
         "eager": str,
+        # "eager_async": bool,
     },
 )
 
@@ -75,7 +76,7 @@ class CloudinaryUploader(BaseUploader):
             "overwrite": True,
             "timestamp": int(time.time()),
             "eager": "c_fill,h_300,w_400/jpg",
-            # "eager_async": False, uncomment to make upload fail
+            # "eager_async": False,  # uncomment to make upload fail
         }
 
         signature_data = cloudinary.utils.api_sign_request(options, api_secret=config.CLOUDINARY_CONFIG["api_secret"])  # type: ignore
@@ -93,7 +94,7 @@ class CloudinaryUploader(BaseUploader):
 
     async def get_resource(
         self, *, asset_id: str, resource_type: str = "video", **kwargs: Any
-    ) -> CloudinaryResource:
+    ) -> CloudinaryResource | None:
         try:
             CUSTOM_LOGGER.info(f"Fetching Cloudinary resource {asset_id}")
             resource = cloudinary.api.resource(  # type: ignore
@@ -103,8 +104,10 @@ class CloudinaryUploader(BaseUploader):
             return resource  # type: ignore
         except cloudinary.exceptions.NotFound as e:  # type: ignore
             # Cloudinary raises error if resource does not exist
-            raise FileNotFoundError(f"Asset with id {asset_id} not found") from e
+            CUSTOM_LOGGER.warning(f"Asset with id {asset_id} not found")
+            return None
         except Exception as e:
-            raise RuntimeError(
+            CUSTOM_LOGGER.warning(
                 f"Failed to retrieve Cloudinary resource {asset_id}: {e}"
-            ) from e
+            )
+            return None

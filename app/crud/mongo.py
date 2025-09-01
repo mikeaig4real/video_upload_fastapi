@@ -13,6 +13,7 @@ OUpdate = TypeVar("OUpdate", bound=BaseModel)
 
 OffsetType = Dict[str, str | int | Tuple[str, str | int] | Dict[str, int | str]]
 
+
 # todo: repetitions happening, will refactor later
 class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
 
@@ -20,17 +21,29 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         self.model = model
         self.engine: AIOEngine = get_engine()
 
-    async def create(self, *, data: OCreate, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel:
+    async def create(
+        self, *, data: OCreate, session: AgnosticDatabase[Any], **kwargs: Any
+    ) -> OModel:
         entity_data = jsonable_encoder(data)
         entity = self.model(**entity_data)
         return await self.engine.save(entity)  # type: ignore
 
-    async def get(self, *, id: BId, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel | None:
+    async def get(
+        self, *, id: BId, session: AgnosticDatabase[Any], **kwargs: Any
+    ) -> OModel | None:
         if id is None:
             return None
         return await self.engine.find_one(self.model, self.model.id == id)  # type: ignore
 
-    async def get_by(self, *, field: str | None, value: Any, many: bool = False, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel | list[OModel] | None:
+    async def get_by(
+        self,
+        *,
+        field: str | None,
+        value: Any,
+        many: bool = False,
+        session: AgnosticDatabase[Any],
+        **kwargs: Any,
+    ) -> OModel | list[OModel] | None:
         if field is None:
             raise ValueError("Field name must be provided")
         column = getattr(self.model, field, None)
@@ -94,14 +107,25 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         return entity_db
 
     async def upsert(
-        self, *, id: BId, data: OCreate, session: AgnosticDatabase[Any], **kwargs: Any
+        self,
+        *,
+        field: str,
+        value: Any,
+        data: OCreate,
+        session: AgnosticDatabase[Any],
+        **kwargs: Any,
     ) -> OModel:
-        entity_db = await self.get(id=id, session=session)
+        entity_db = await self.get_by(field=field, value=value, session=session)
 
         if not entity_db:
+            setattr(data, field, value)
             return await self.create(data=data, session=session)
-
+        
+        if isinstance(entity_db, list):
+            entity_db = entity_db[0]
+            
         entity_data = jsonable_encoder(data)
+        
         if isinstance(data, dict):
             update_data = data
         else:
@@ -113,7 +137,9 @@ class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
         await self.engine.save(entity_db)  # type: ignore
         return entity_db
 
-    async def delete(self, *, id: BId, session: AgnosticDatabase[Any], **kwargs: Any) -> OModel | None:
+    async def delete(
+        self, *, id: BId, session: AgnosticDatabase[Any], **kwargs: Any
+    ) -> OModel | None:
         entity_db = await self.get(id=id, session=session)
         if entity_db:
             await self.engine.delete(entity_db)  # type: ignore

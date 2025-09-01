@@ -1,7 +1,7 @@
-from typing import Any
+from typing import Any, cast
 from sqlmodel import Session
-from app.crud.base import BId
 from app.crud.sql import SQLCrud
+from app.user.model.sql import User
 from app.video.model.sql import (
     VideoBase,  # pyright: ignore[reportUnusedImport]
     Video,
@@ -13,22 +13,14 @@ from app.video.model.sql import (
 
 class VideoCrud(SQLCrud[Video, VideoCreate, VideoUpdate]):
 
-    async def create(
-        self, *, data: VideoCreate, session: Session, user_id: int, **kwargs: Any
+    async def upsert(
+        self, field: str, value: Any, data: VideoCreate, session: Session, user: User
     ) -> Video:
         entity = self.model.model_validate(data)
-        entity.user_id = user_id
-        session.add(entity)
-        session.commit()
-        session.refresh(entity)
-        return entity
-    
-    async def upsert(
-        self, id: BId, data: VideoCreate, session: Session, user_id: int
-    ) -> Video:
-        if id is None:
-            return await self.create(data=data, session=session, user_id=user_id)
-        return await super().upsert(id=id, data=data, session=session)
+        entity.user_id = cast(int, user.id)
+        return await super().upsert(
+            field=field, value=value, data=cast(VideoCreate, entity), session=session
+        )
 
 
 crud = VideoCrud(Video)

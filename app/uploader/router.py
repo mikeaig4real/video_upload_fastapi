@@ -36,7 +36,9 @@ async def get_params(
     params = await uploader_crud.generate_params(
         asset_id=asset_id, resource_type="video"
     )
-    await upload_crud.create(
+    await upload_crud.upsert(
+        field="upload_hash",
+        value=upload.upload_hash,
         data=UploadCreate(
             asset_id=asset_id,
             user_id=current_user.id,

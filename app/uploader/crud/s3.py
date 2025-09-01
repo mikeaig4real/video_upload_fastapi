@@ -2,6 +2,7 @@ from typing import Any
 
 import botocore
 from app.core.config import UPLOAD_BUCKET_ENUM, get_config
+from app.core.utils import CUSTOM_LOGGER
 from app.uploader.crud.base import BaseUploader, UploadParams
 from boto3 import client # pyright: ignore[reportUnknownVariableType]
 config = get_config()
@@ -28,8 +29,9 @@ class S3Uploader(BaseUploader):
             "upload_provider": UPLOAD_BUCKET_ENUM.S3,
         }
 
-    async def get_resource(self, *, asset_id: str, **kwargs: Any) -> dict[str, Any]:
+    async def get_resource(self, *, asset_id: str, **kwargs: Any) -> dict[str, Any] | None:
         try:
+            CUSTOM_LOGGER.info(f"Fetching S3 resource {asset_id}")
             response = self.s3.head_object( # type: ignore
                 Bucket=self.bucket,
                 Key=asset_id,
@@ -41,7 +43,8 @@ class S3Uploader(BaseUploader):
             )
         except botocore.exceptions.ClientError as e: # type: ignore
             if e.response["Error"]["Code"] == "404": # type: ignore
-                raise FileNotFoundError(
+                CUSTOM_LOGGER.info(
                     f"S3 object {asset_id} not found in bucket {self.bucket}"
                 )
-            raise RuntimeError(f"Failed to fetch S3 object {asset_id}: {e}") from e
+            CUSTOM_LOGGER.error(f"Failed to fetch S3 object {asset_id}: {e}")
+            return None

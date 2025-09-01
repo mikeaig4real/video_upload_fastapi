@@ -97,17 +97,22 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
 
     async def upsert(
         self,
-        id: BId,
+        field: str,
+        value: Any,
         data: SCreate,
         session: Session,
         *args: Any,
         **kwargs: Any,
     ) -> SModel:
-        entity = await self.get(id=id, session=session)
+        entity = await self.get_by(field=field, value=value, session=session)
 
         if not entity:
+            setattr(data, field, value)
             return await self.create(data=data, session=session)
-
+        
+        if isinstance(entity, list):
+            entity = entity[0]
+        
         model_data = data.model_dump(exclude_unset=True)
         entity.sqlmodel_update(model_data)
         session.add(entity)
