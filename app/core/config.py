@@ -101,9 +101,17 @@ class Config(BaseSettings):
     FRONTEND_HOST: str = "http://localhost:5173"
     ENVIRONMENT: ENVIRONMENT_TYPE_ENUM = ENVIRONMENT_TYPE_ENUM.LOCAL
     PROJECT_NAME: OPTIONAL_STR_TYPE = None
+    FRONTEND_HOSTS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_cors)] = []
     BACKEND_CORS_ORIGINS: Annotated[list[AnyUrl] | str, BeforeValidator(parse_cors)] = (
         []
     )
+
+    @computed_field
+    @property
+    def ALL_FRONTEND_HOSTS(self) -> list[str]:
+        return [str(origin).rstrip("/") for origin in self.FRONTEND_HOSTS] + [
+            self.FRONTEND_HOST
+        ]
 
     @computed_field
     @property

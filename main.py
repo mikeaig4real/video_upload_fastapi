@@ -61,10 +61,10 @@ app.include_router(uploader_router, prefix=config.API_PREFIX)
 app.include_router(upload_router, prefix=config.API_PREFIX)
 
 
-if config.ENVIRONMENT.is_production:
+if config.ENVIRONMENT.is_production and len(config.ALL_FRONTEND_HOSTS):
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=[config.FRONTEND_HOST],
+        allow_origins=config.ALL_FRONTEND_HOSTS,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],
