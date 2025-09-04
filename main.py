@@ -11,6 +11,7 @@ from app.auth.router import router as auth_router
 from app.video.router import router as video_router
 from app.uploader.router import router as uploader_router
 from app.upload.router import router as upload_router
+from app.library.router import router as library_router
 from app.core.rate_limiter import limiter
 
 config = get_config()
@@ -59,6 +60,7 @@ app.include_router(auth_router, prefix=config.API_PREFIX)
 app.include_router(video_router, prefix=config.API_PREFIX)
 app.include_router(uploader_router, prefix=config.API_PREFIX)
 app.include_router(upload_router, prefix=config.API_PREFIX)
+app.include_router(library_router, prefix=config.API_PREFIX)
 
 
 if config.ENVIRONMENT.is_production and len(config.ALL_FRONTEND_HOSTS):
