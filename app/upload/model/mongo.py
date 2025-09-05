@@ -22,6 +22,8 @@ class UploadBase(BaseModel):
     upload_status: UPLOAD_STATUS_ENUM = Field(index=True)
     eager: str = "c_fill,h_300,w_400/jpg"
     user_id: ObjectId 
+    height: int
+    width: int
 
 
 class Upload(Model):
@@ -40,6 +42,8 @@ class Upload(Model):
     user_id: ObjectId
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    height: int
+    width: int
 
 
 class UploadCreate(UploadBase):

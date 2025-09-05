@@ -24,6 +24,9 @@ class UploadParams(BaseModel):
     upload_hash: str
     upload_provider: UPLOAD_BUCKET_ENUM = config.UPLOAD_BUCKET
     eager: str = "c_fill,h_300,w_400/jpg"
+    height: int
+    width: int
+
 
 UploadType = Annotated[UploadParams, Body()]
 

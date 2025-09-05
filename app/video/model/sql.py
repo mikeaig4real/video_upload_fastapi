@@ -23,10 +23,12 @@ class VideoBase(SQLModel):
     upload_provider: UPLOAD_BUCKET_ENUM = config.UPLOAD_BUCKET
     asset_id: str = Field(sa_column_kwargs={"unique": True})
     thumbnail_url: HttpCheck = Field(regex=URL_REGEX)
-    playback_url: HttpCheck = Field(regex=URL_REGEX)
+    playback_url: HttpCheck | None = Field(regex=URL_REGEX)
     type: Optional[str] = None
     upload_status: UPLOAD_STATUS_ENUM
     upload_url: HttpCheck = Field(regex=URL_REGEX)
+    height: int
+    width: int
     __table_args__ = (
         Index(
             "idx_user_id_title_type_upload_status_label_is_public",

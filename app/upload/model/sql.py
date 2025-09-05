@@ -25,6 +25,8 @@ class UploadBase(SQLModel):
     )
     eager: str = "c_fill,h_300,w_400/jpg"
     user_id: int
+    height: int
+    width: int
 
 class Upload(UploadBase, table=True):
     id: Optional[int] = Field(default=None, primary_key=True, index=True)

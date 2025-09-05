@@ -22,10 +22,12 @@ class VideoBase(BaseModel):
     upload_provider: UPLOAD_BUCKET_ENUM = config.UPLOAD_BUCKET
     asset_id: str
     thumbnail_url: Optional[str] = None
-    playback_url: HttpCheck
+    playback_url: HttpCheck | None = None
     type: Optional[str] = None
     upload_status: UPLOAD_STATUS_ENUM
     upload_url: HttpCheck
+    height: int
+    width: int
 
 
 class Video(Model):
@@ -39,18 +41,16 @@ class Video(Model):
     upload_provider: UPLOAD_BUCKET_ENUM = config.UPLOAD_BUCKET
     asset_id: str = Field(unique=True)
     thumbnail_url: Optional[str] = None
-    playback_url: HttpCheck
+    playback_url: HttpCheck | None = None
     type: Optional[str] = None
     upload_status: UPLOAD_STATUS_ENUM
-    created_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
-    updated_at: datetime = Field(
-        default_factory=lambda: datetime.now(timezone.utc)
-    )
+    created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
     upload_url: HttpCheck = Field()
     user: User = Reference()
     user_id: ObjectId
+    height: int
+    width: int
 
 
 class VideoCreate(VideoBase):
