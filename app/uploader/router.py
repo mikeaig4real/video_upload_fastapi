@@ -32,7 +32,7 @@ async def get_params(
         raise make_exception(
             code=status.HTTP_409_CONFLICT, detail="Possible duplicate video encountered"
         )
-    asset_id = f"{upload.folder}/{current_user.id}/{upload.title}"
+    asset_id = f"{upload.folder}/{current_user.id}/{upload.upload_hash}"
     params = await uploader_crud.generate_params(
         asset_id=asset_id, resource_type="video"
     )
