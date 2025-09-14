@@ -27,15 +27,24 @@ count_per_req = "3"
 async def get_params(
     upload: UploadType, session: RequireSession, current_user: RequireCurrentUser, request: Request
 ):
+    """
+    Generates secured params that client can use for direct uploads
+    """
+    # fetch possible duplicate video by hash
     video = await video_crud.get_by(field="upload_hash", value=upload.upload_hash, session=session)  # type: ignore
+    # if such video exists, raise a duplicate error
     if video:
         raise make_exception(
             code=status.HTTP_409_CONFLICT, detail="Possible duplicate video encountered"
         )
+    # create a unique asset id to be used toi generate params from bucket
     asset_id = f"{upload.folder}/{current_user.id}/{upload.upload_hash}"
+    # generate bucket params for intended upload
     params = await uploader_crud.generate_params(
         asset_id=asset_id, resource_type="video"
     )
+    #  create a temp upload record to be used for future reconciliation if upload to bucket is successful, 
+    # but persistence to db fails, this is a trade-off between orphaned bucket files or reconciliation strategy
     await upload_crud.upsert(
         field="upload_hash",
         value=upload.upload_hash,
@@ -80,6 +89,9 @@ async def get_resource(
     current_user: RequireCurrentUser,
     request: Request
 ):
+    """
+    Retrieve a bucket resource info directly from bucket using asset_id
+    """
     asset_id = f"{folder}/{current_user.id}/{title}"
     resource = await uploader_crud.get_resource(
         asset_id=asset_id, resource_type="video"

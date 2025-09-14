@@ -7,8 +7,10 @@ from app.constants import (
     SERVERERROR_RESPONSE,
     UNAUTHORIZED_RESPONSE,
 )
-from app.core.utils import CUSTOM_LOGGER
+from app.core.utils import make_custom_logger
 
+# make a custom logger for logging
+CUSTOM_LOGGER = make_custom_logger(__name__)
 
 class ErrorResponse(JSONResponse):
     code = 500

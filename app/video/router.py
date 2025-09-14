@@ -26,6 +26,9 @@ router = APIRouter(prefix="/video")
 async def create(
     video: VideoCreate, session: RequireSession, current_user: RequireCurrentUser, request: Request
 ):
+    """
+    Upsert a video record
+    """
     video = await video_crud.upsert(field="upload_hash", value=video.upload_hash, data=video, user=current_user, session=session)  # type: ignore
     return SuccessResponse(video)
 
@@ -33,6 +36,9 @@ async def create(
 @router.get("/{id}", response_model=SuccessModel[VideoPublic])
 @limiter.limit("50/minute")  # type: ignore
 async def get(id: IDType, session: RequireSession, _: RequireCurrentUser, request: Request):
+    """
+    Retrieves a video record
+    """
     video = await video_crud.get(id=id, session=session)  # type: ignore
     if not video:
         raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Video not found")
@@ -47,7 +53,9 @@ async def list(
     current_user: RequireCurrentUser,
     request: Request
 ):
-
+    """
+    Retrieves a list of video records with filters
+    """
     options = cast(BOptions, filters.pagination_dict())
     filters_with_user: dict[str, Any] = {
         "user_id": current_user.id,
@@ -71,6 +79,9 @@ async def update(
     _: RequireCurrentUser,
     request: Request
 ):
+    """
+    Updates a video record
+    """
     video = await video_crud.update(id=id, data=update, session=session)  # type: ignore
     if not video:
         raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Video not found")
@@ -80,6 +91,9 @@ async def update(
 @limiter.limit("5/minute")  # type: ignore
 @router.delete("/{id}", response_model=SuccessModel[VideoPublic])
 async def delete(id: IDType, session: RequireSession, _: RequireCurrentUser, request: Request):
+    """
+    Deletes a video record
+    """
     video = await video_crud.delete(id=id, session=session)  # type: ignore
     if not video:
         raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Video not found")

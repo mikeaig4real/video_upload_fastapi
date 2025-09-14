@@ -7,7 +7,7 @@ from celery.schedules import crontab
 from app.core.config import get_config  # pyright: ignore[reportUnusedImport]
 
 config = get_config()
-
+# register workers
 celery_app = Celery(
     "worker",
     broker=config.REDIS_URL,

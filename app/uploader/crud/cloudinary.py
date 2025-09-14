@@ -4,9 +4,10 @@ from typing import Any, TypedDict
 import cloudinary
 import cloudinary.api
 from app.core.config import UPLOAD_BUCKET_ENUM, get_config
-from app.core.utils import CUSTOM_LOGGER
+from app.core.utils import make_custom_logger
 from app.uploader.crud.base import BaseUploader, UploadParams
-
+# make a custom logger for logging
+CUSTOM_LOGGER = make_custom_logger(__name__)
 config = get_config()
 
 OptionsType = TypedDict(
@@ -53,10 +54,16 @@ class CloudinaryResource(TypedDict):
 
 
 class CloudinaryUploader(BaseUploader):
+    """
+    Cloudinary class used to interact with cloudinary bucket
+    """
     _has_init: bool = False
     _lock = threading.Lock()
 
     def __new__(cls):
+        """
+        Class based singleton pattern to initialize cloudinary with config with race reinforcement
+        """
         if not cls._has_init:
             with cls._lock:
                 if not cls._has_init:
@@ -71,6 +78,9 @@ class CloudinaryUploader(BaseUploader):
     async def generate_params(
         self, *, asset_id: str, resource_type: str = "video", **kwargs: Any
     ) -> UploadParams:
+        """
+        Generates signed params to be used by the client to upload a resource to cloudinary
+        """
         options: OptionsType = {
             "public_id": asset_id,
             "overwrite": True,
@@ -95,6 +105,9 @@ class CloudinaryUploader(BaseUploader):
     async def get_resource(
         self, *, asset_id: str, resource_type: str = "video", **kwargs: Any
     ) -> CloudinaryResource | None:
+        """
+        Retrieves resource info from cloudinary bucket
+        """
         try:
             CUSTOM_LOGGER.info(f"Fetching Cloudinary resource {asset_id}")
             resource = cloudinary.api.resource(  # type: ignore

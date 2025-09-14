@@ -4,6 +4,9 @@ from pydantic import BaseModel, EmailStr, Field
 
 
 class BodyParams(BaseModel):
+    """
+    Body params for login/register
+    """
     model_config = {"extra": "forbid"}
 
     password: str = Field(max_length=20, min_length=5)

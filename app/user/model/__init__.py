@@ -1,7 +1,7 @@
 from app.core.config import get_config
 
 config = get_config()
-
+# export user models based on config
 if config.IS_SQL:
     from app.user.model.sql import  UserBase, User, UserPublic, UserCreate, UserUpdate # pyright: ignore[reportUnusedImport]
 else:

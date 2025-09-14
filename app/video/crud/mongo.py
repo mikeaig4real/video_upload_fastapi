@@ -13,7 +13,9 @@ from app.video.model.mongo import (
 
 
 class VideoCrud(MONGOCrud[Video, VideoCreate, VideoUpdate]):
-
+    """
+    Video Crud Class that handles mongo specific video crud implementations
+    """
     async def upsert(
         self, *, field: str, value: Any, data: VideoCreate, session: AgnosticDatabase[Any], user: User, **kwargs: Any
     ) -> Video:

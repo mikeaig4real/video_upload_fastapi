@@ -12,6 +12,9 @@ unitMap: dict[Unit, int] = {
 
 
 def convertSize(value: int, fromUnit: Unit, toUnit: Unit) -> float | int:
+    """
+    Converts between different types of data units
+    """
     if fromUnit not in unitMap or toUnit not in unitMap:
         raise ValueError(f"Invalid unit. Allowed: {list(unitMap.keys())}")
     return value * unitMap[fromUnit] / unitMap[toUnit]

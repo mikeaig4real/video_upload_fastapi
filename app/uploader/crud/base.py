@@ -14,6 +14,9 @@ class UploadParams(TypedDict):
 
 
 class BaseUploader(ABC):
+    """
+    Base (abstract) class for bucket crud specific methods
+    """
     @abstractmethod
     async def generate_params(
         self, * , asset_id: str, resource_type: str = "video", **kwargs: Any

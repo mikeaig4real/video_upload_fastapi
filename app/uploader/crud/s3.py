@@ -2,12 +2,17 @@ from typing import Any
 
 import botocore
 from app.core.config import UPLOAD_BUCKET_ENUM, get_config
-from app.core.utils import CUSTOM_LOGGER
+from app.core.utils import make_custom_logger
 from app.uploader.crud.base import BaseUploader, UploadParams
 from boto3 import client # pyright: ignore[reportUnknownVariableType]
+# make a custom logger for logging
+CUSTOM_LOGGER = make_custom_logger(__name__)
 config = get_config()
 
 class S3Uploader(BaseUploader):
+    """
+    S3 class used to interact with s3 bucket
+    """
     def __init__(self):
         self.bucket = config.S3_CONFIG["bucket"]
         self.s3 = client("s3") # type: ignore
@@ -15,6 +20,9 @@ class S3Uploader(BaseUploader):
     async def generate_params(
         self, *, asset_id: str, resource_type: str = "video", **kwargs: Any
     ) -> UploadParams:
+        """
+        Generates signed params to be used by the client to upload a resource to s3
+        """
         presigned = self.s3.generate_presigned_post( # type: ignore
             Bucket=self.bucket,
             Key=asset_id,
@@ -31,6 +39,9 @@ class S3Uploader(BaseUploader):
 
     async def get_resource(self, *, asset_id: str, **kwargs: Any) -> dict[str, Any] | None:
         try:
+            """
+            Retrieves resource info from s3 bucket
+            """
             CUSTOM_LOGGER.info(f"Fetching S3 resource {asset_id}")
             response = self.s3.head_object( # type: ignore
                 Bucket=self.bucket,

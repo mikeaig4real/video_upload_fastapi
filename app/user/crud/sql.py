@@ -7,7 +7,9 @@ from app.user.model.sql import User, UserCreate, UserUpdate # pyright: ignore[re
 
 
 class UserCrud(SQLCrud[User, UserCreate, UserUpdate]):
-
+    """
+    User Crud Class that handles sql specific user crud implementations
+    """
     async def create(self, *, data: UserCreate, session: Session, **kwargs: Any) -> User:
         entity_data = jsonable_encoder(data)
         password = entity_data.pop("password")

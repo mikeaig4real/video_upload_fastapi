@@ -8,6 +8,9 @@ from app.upload.model.mongo import (
 
 
 class UploadCrud(MONGOCrud[Upload, UploadCreate, UploadUpdate]):
+    """
+    Upload Crud Class that handles mongo specific upload crud implementations
+    """
     pass
 
 

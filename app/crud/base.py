@@ -18,6 +18,9 @@ class BOptions(TypedDict, total=False):
 
 
 class BaseCrud(ABC, Generic[BModel, BCreate, BUpdate]):
+    """
+    Base (abstract) class for db crud specific methods
+    """
     @abstractmethod
     async def create(self, *, data: BCreate, **kwargs: Any) -> BModel: ...
 

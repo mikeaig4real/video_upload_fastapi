@@ -13,7 +13,9 @@ from app.user.model.mongo import (
 
 
 class UserCrud(MONGOCrud[User, UserCreate, UserUpdate]):
-
+    """
+    User Crud Class that handles mongo specific user crud implementations
+    """
     async def create(self, *, data: UserCreate, session: AgnosticDatabase[Any], **kwargs: Any) -> User:
         entity_data = jsonable_encoder(data)
         password = entity_data.pop("password")

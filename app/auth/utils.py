@@ -15,13 +15,22 @@ pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def verify_pass(plain_pass: str, hashed_pass: str) -> bool:
+    """
+    Checks to see if given password and saved hashed password match
+    """
     return pwd_context.verify(plain_pass, hashed_pass)
 
 def hash_pass(plain_pass: str) -> str:
+    """
+    Creates and returns a hashed password
+    """
     return pwd_context.hash(secret=plain_pass)
 
 
 def make_exception(code: int, detail: str):
+    """
+    Reuseable function to make an exception
+    """
     return HTTPException(
         status_code=code,
         detail=detail,
@@ -48,20 +57,31 @@ class Token(BaseModel):
 
 
 def create_access_token(data: ToTokenType, expires_delta: timedelta | None = None):
+    """
+    Creates and returns a JWT Token from data to be encoded and expiry time
+    """
+    # normalize data to a dict
     to_encode = dict(data.copy())
+    # create an expire date object using provided expires_delta or from config value
     if expires_delta:
         expire = datetime.now(timezone.utc) + expires_delta
     else:
         expire = datetime.now(timezone.utc) + timedelta(
             minutes=config.ACCESS_TOKEN_EXPIRE_MINUTES
         )
+    # inject/overwrite the "exp" field into to_encode as an int
     to_encode.update({"exp": int(expire.timestamp())})
+    # create a safe JSON 
     to_encode = jsonable_encoder(to_encode)
+    # encode it to a JWT string and return it
     encoded_jwt = jwt.encode(payload=to_encode, key=config.SECRET_KEY, algorithm=config.ENCODE_ALGORITHM)  # type: ignore
     return encoded_jwt
 
 
 def make_user_token(user: User):
+    """
+    Creates a token with user specific data and returns it
+    """
     to_token: ToTokenType = {
         "sub": user.email,
         "id": str(user.id),
@@ -73,4 +93,7 @@ def make_user_token(user: User):
 
 
 def decode_token(token: str):
+    """
+    Decodes a JWT string and returns the decoded values
+    """
     return jwt.decode(token, config.SECRET_KEY, algorithms=config.ENCODE_ALGORITHM) # type: ignore

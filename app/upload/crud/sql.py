@@ -3,6 +3,9 @@ from app.upload.model.sql import Upload, UploadCreate, UploadUpdate, UploadPubli
 
 
 class UploadCrud(SQLCrud[Upload, UploadCreate, UploadUpdate]):
+    """
+    Upload Crud Class that handles sql specific upload crud implementations
+    """
     pass
 
 

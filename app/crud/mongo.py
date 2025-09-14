@@ -16,6 +16,9 @@ OffsetType = Dict[str, str | int | Tuple[str, str | int] | Dict[str, int | str]]
 
 # todo: repetitions happening, will refactor later
 class MONGOCrud(BaseCrud[OModel, OCreate, OUpdate]):
+    """
+    Mongo Crud Class that handles mongo specific crud implementations
+    """
 
     def __init__(self, model: type[Model]):
         self.model = model

@@ -9,6 +9,9 @@ config = get_config()
 def findByTransformation(
     transformation: str, derived: list[DerivedResource] | list[dict[str, Any]]
 ) -> Optional[str]:
+    """
+    Retrieves thumbnail url of video resource
+    """
     if not derived:
         return None
     for item in derived:
@@ -20,6 +23,9 @@ def findByTransformation(
 def normalize_video_resource(
     *, resource: Dict[str, Any], upload: Dict[str, Any]
 ) -> Dict[str, Any]:
+    """
+    Normalizes resource info based on bucket type
+    """
     if upload["upload_provider"] == UPLOAD_BUCKET_ENUM.CLOUDINARY:
         cloudinary_resource = cast(CloudinaryResource, resource)
         return {

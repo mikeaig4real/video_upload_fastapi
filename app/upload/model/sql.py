@@ -34,7 +34,6 @@ class Upload(UploadBase, table=True):
         default=None,
         sa_column=Column(DateTime(timezone=True), server_default=func.now()),
     )
-    # todo: check if ts is implemented for mongo
     updated_at: datetime | None = Field(
         default=None,
         sa_column=Column(

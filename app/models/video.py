@@ -1,6 +1,9 @@
 from enum import Enum
 
 class UPLOAD_STATUS_ENUM(str, Enum):
+    """
+    Video statuses
+    """
     IDLE = "idle"
     UPLOADING = "uploading"
     PROCESSING = "processing"
@@ -9,6 +12,9 @@ class UPLOAD_STATUS_ENUM(str, Enum):
 
 
 class VIDEO_LABEL_ENUM(str, Enum):
+    """
+    Video quality labels
+    """
     P240 = "240p"
     P360 = "360p"
     P480 = "480p"

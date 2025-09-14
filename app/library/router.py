@@ -24,6 +24,9 @@ count_per_req = "10"
 async def get(
     id: IDType, session: RequireSession, request: Request
 ):
+    """
+    Get a public video record
+    """
     video = await video_crud.get(id=id, session=session)  # type: ignore
     if not video:
         raise make_exception(code=status.HTTP_404_NOT_FOUND, detail="Video not found")
@@ -39,13 +42,15 @@ async def list(
     session: RequireSession,
     request: Request,
 ):
-
+    """
+    Get a list of public video records with filters
+    """
     options = cast(BOptions, filters.pagination_dict())
     public_only: dict[str, Any] = {
         **filters.video_filters_dict(),
         "is_public": True,
     }
-    
+
     videos = await video_crud.list(
         options=options,
         filters=public_only,

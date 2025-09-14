@@ -2,8 +2,8 @@ from app.core.config import get_config
 
 config = get_config()
 
+# export models based on db type from config
 if config.IS_SQL:
-    from app.user.model.sql import  UserBase, User, UserPublic, UserCreate, UserUpdate # pyright: ignore[reportUnusedImport]
+    from app.analytics.model.sql import  AnalyticsBase, Analytics, AnalyticsPublic, AnalyticsCreate, AnalyticsUpdate # pyright: ignore[reportUnusedImport]
 else:
-    from app.user.model.mongo import UserBase, User, UserPublic, UserCreate, UserUpdate # pyright: ignore[reportUnusedImport]
-
+    from app.analytics.model.mongo import AnalyticsBase, Analytics, AnalyticsPublic, AnalyticsCreate, AnalyticsUpdate # pyright: ignore[reportUnusedImport]

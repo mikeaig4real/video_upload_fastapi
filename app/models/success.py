@@ -5,5 +5,8 @@ T = TypeVar("T")
 
 
 class SuccessModel(BaseModel, Generic[T]):
+    """
+    Success model response
+    """
     success: bool = True
     data: T

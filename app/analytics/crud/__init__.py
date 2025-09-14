@@ -2,14 +2,14 @@ from app.core.config import get_config
 
 config = get_config()
 
-
+# export crud based on db type from config
 if config.IS_SQL:
-    from app.user.crud.sql import crud
-    from app.user.model.sql import UserUpdate, UserPublic, UserCreate  # type: ignore
+    from app.analytics.crud.sql import crud
+    from app.analytics.model.sql import AnalyticsUpdate, AnalyticsPublic, AnalyticsCreate  # type: ignore
 
-    user_crud = crud
+    analytics_crud = crud
 else:
-    from app.user.crud.mongo import crud
-    from app.user.model.mongo import UserUpdate, UserPublic, UserCreate  # type: ignore
+    from app.analytics.crud.mongo import crud
+    from app.analytics.model.mongo import AnalyticsUpdate, AnalyticsPublic, AnalyticsCreate  # type: ignore
 
-    user_crud = crud
+    analytics_crud = crud

@@ -1,13 +1,13 @@
 from enum import Enum
 from typing import Dict
 from typing import Any
-
+# regex for valid video formats
 VIDEO_FORMAT_REGEX = r"^(video\/\w+)$"
-
+# regex for valid urls
 URL_REGEX = r"^(https?:\/\/)([\w.-]+)(\.[a-zA-Z]{2,})(:[0-9]+)?(\/.*)?$"
 
 ResponseType = dict[str, str | bool | Dict[str, Any]]
-
+# default responses
 SUCCESS_RESPONSE: ResponseType = {"success": True, "data": {}}
 ERROR_RESPONSE: ResponseType = {"success": False, "description": ""}
 NOTFOUND_RESPONSE: ResponseType = ERROR_RESPONSE | {"description": "Unknown request or entity"}
@@ -18,3 +18,5 @@ UNAUTHORIZED_RESPONSE: ResponseType = ERROR_RESPONSE | {"description": "Unauthor
 class ENTITY_NAMES(Enum):
     USER = "user"
     VIDEO = "video"
+    ANALYTICS = "analytics"
+    LIBRARY = "library"

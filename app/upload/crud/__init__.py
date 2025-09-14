@@ -2,7 +2,7 @@ from app.core.config import get_config
 
 config = get_config()
 
-
+# export crud based on db type from config
 if config.IS_SQL:
     from app.upload.crud.sql import crud
     from app.upload.model.sql import Upload, UploadPublic, UploadUpdate, UploadCreate  # type: ignore

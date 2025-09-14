@@ -12,7 +12,9 @@ from app.video.model.sql import (
 
 
 class VideoCrud(SQLCrud[Video, VideoCreate, VideoUpdate]):
-
+    """
+    Video Crud Class that handles sql specific video crud implementations
+    """
     async def upsert(
         self, field: str, value: Any, data: VideoCreate, session: Session, user: User
     ) -> Video:

@@ -11,7 +11,9 @@ SUpdate = TypeVar("SUpdate", bound=SQLModel)
 
 # todo: repetitions happening, will refactor later
 class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
-
+    """
+    SQL Crud Class that handles sql specific crud implementations
+    """
     def __init__(self, model: type[SModel]):
         self.model = model
 
@@ -109,10 +111,10 @@ class SQLCrud(BaseCrud[SModel, SCreate, SUpdate]):
         if not entity:
             setattr(data, field, value)
             return await self.create(data=data, session=session)
-        
+
         if isinstance(entity, list):
             entity = entity[0]
-        
+
         model_data = data.model_dump(exclude_unset=True)
         entity.sqlmodel_update(model_data)
         session.add(entity)

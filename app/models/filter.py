@@ -6,6 +6,9 @@ from app.models.video import UPLOAD_STATUS_ENUM, VIDEO_LABEL_ENUM
 
 
 class FilterOptionsParams(BaseModel):
+    """
+    Filter params for video records
+    """
     model_config = {"extra": "forbid"}
 
     # pagination related
