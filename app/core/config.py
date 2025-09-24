@@ -121,7 +121,7 @@ class Config(BaseSettings):
         ]
 
     SECRET_KEY: str = secrets.token_urlsafe(32)
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8 # 8 days, can alter at .env level
     DB_NAME: OPTIONAL_STR_TYPE = None
     ENCODE_ALGORITHM: OPTIONAL_STR_TYPE = "HS256"
     DB_SERVER: OPTIONAL_STR_TYPE = None
